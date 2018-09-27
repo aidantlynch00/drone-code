@@ -1,16 +1,16 @@
 #include <wiringPi.h>
 #include "GPIO.h"
+#include "SoftPWM_GPIO.h"
 
 // LED Pin - wiringPi pin 0 is BCM_GPIO 17.
 // we have to use BCM numbering when initializing with wiringPiSetupSys
 // when choosing a different pin number please use the BCM numbering, also
 // update the Property Pages - Build Events - Remote Post-Build Event command 
 // which uses gpio export for setup for wiringPiSetupSys
-#define	LED	17
 
 int main(void)
 {
-	wiringPiSetupSys();
+	wiringPiSetup();
 
 	/*
 	pinMode(LED, OUTPUT);
@@ -33,9 +33,9 @@ int main(void)
 	delete led;
 	led = nullptr;
 
+	//BLINK AT 50%
+	SoftPWM_GPIO* pwm_led = new SoftPWM_GPIO(27);
+	pwm_led->set_value(50);
+
 	return 0;
 }
-
-//Notes: Soft PVM (pulse width modulation through software) is not suitable for motor controlling
-//more Hard PVM pins in a controller board
-//power might become an issue on control boards
