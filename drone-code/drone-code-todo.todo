@@ -1,1 +1,17 @@
-☐ Make the set_value and change_value functions write to the pin in SoftPWM_GPIO class
+Coding the basics to control motors through GPIO pins
+☐ Craft a motor class that incorporates SoftPWM_GPIO export GPIO pins for motors and control their speed
+
+Coding the basic for flight
+☐ Making motor speed controlllable remotely with a flight controller
+    ☐ Make an app for the iPhone that can communicate with the drone via Bluetooth
+    ☐ Buy a radio flight controller and map the controls to work with the drone
+☐ Making the drone capable of basic movement (translating and rotating in a stable enviroment
+
+Coding the necessary components for practicle use
+☐ Use a gyroscope/accelerometer to stabilize the drone for flight in an unstable enviroment
+
+Making the drone super rad @FIX
+☐ Install a camera and have it record video on the Raspberry Pi
+    ☐ Use the camera to do vision processing
+        ☐ Autonomous flight around obstacles
+        ☐ Following a face or other object
