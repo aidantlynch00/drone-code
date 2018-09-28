@@ -36,6 +36,11 @@ int main(void)
 	//BLINK AT 50%
 	SoftPWM_GPIO* pwm_led = new SoftPWM_GPIO(27);
 	pwm_led->set_value(50);
+	delay(1000);
+	pwm_led->set_value(0);
+
+	delete pwm_led;
+	pwm_led = nullptr;
 
 	return 0;
 }

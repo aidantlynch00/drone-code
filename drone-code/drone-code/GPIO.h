@@ -3,9 +3,11 @@
 class GPIO {
 
 private:
-	int bcm_pin;
 	int mode;
 	int pud;
+
+protected:
+	int bcm_pin;
 	int value;
 
 public:

@@ -9,25 +9,20 @@ SoftPWM_GPIO::SoftPWM_GPIO(int bcm_pin, int _duty_cycle = 100): GPIO(bcm_pin, OU
 }
 
 SoftPWM_GPIO::~SoftPWM_GPIO(){
+	softPwmStop(bcm_pin);
 	//Base Class constructor implicity called here
-}
-
-void SoftPWM_GPIO::change_duty(int change) {
-	duty_cycle += change;
 }
 
 int SoftPWM_GPIO::get_duty() {
 	return duty_cycle;
 }
 
-void SoftPWM_GPIO::set_duty(int _duty_cycle) {
-	duty_cycle = _duty_cycle;
-}
-
 void SoftPWM_GPIO::change_value(int change) {
 	value += change;
+	softPwmWrite(bcm_pin, value);
 }
 
 void SoftPWM_GPIO::set_value(int _value) {
 	value = _value;
+	softPwmWrite(bcm_pin, value);
 }
