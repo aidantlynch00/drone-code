@@ -1,5 +1,6 @@
 Coding the basics to control motors through GPIO pins
-☐ Craft a motor class that incorporates SoftPWM_GPIO export GPIO pins for motors and control their speed @started(18-09-28 12:47)
+✘ Craft a motor class that incorporates SoftPWM_GPIO export GPIO pins for motors and control their speed @started(18-09-28 12:47) @cancelled(18-10-01 13:32) @wasted(3d45m50s)
+☐ Create a class that uses PWM output to control an ESC (only need one pin)
 
 Coding the basic for flight
 ☐ Making motor speed controlllable remotely with a flight controller
@@ -16,6 +17,6 @@ Making the drone able to "see"
         ☐ Autonomous flight around obstacles
         ☐ Following a face or other object
 
-
+https://www.rototron.info/raspberry-pi-esc-motor-tutorial/
 https://www.scribd.com/doc/33888332/Dc-Motor-Speed-Control-Using-C
 https://www.dronezon.com/learn-about-drones-quadcopters/how-a-quadcopter-works-with-propellers-and-motors-direction-design-explained/
