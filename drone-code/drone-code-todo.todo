@@ -17,6 +17,13 @@ Making the drone able to "see"
         ☐ Autonomous flight around obstacles
         ☐ Following a face or other object
 
+How to connect everything
 https://www.rototron.info/raspberry-pi-esc-motor-tutorial/
+PWM info
 https://www.scribd.com/doc/33888332/Dc-Motor-Speed-Control-Using-C
-https://www.dronezon.com/learn-about-drones-quadcopters/how-a-quadcopter-works-with-propellers-and-motors-direction-design-explained/
+How to make a drone move
+https://www.dronezon.com/learn-about-drones-quadcopters/how-a-quadcopter-works-with-propellers-and-motors-direction-design-explained/]
+How to use ESCs
+https://forum.arduino.cc/index.php?topic=270309.0
+
+**Look up the relationships between frequency, pulse width, and passes value

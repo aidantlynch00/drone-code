@@ -3,6 +3,8 @@
 
 class ESC_Controller {
 
+
+
 private:
 	SoftPWM_GPIO* pin;
 
