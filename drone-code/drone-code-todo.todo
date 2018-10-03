@@ -23,7 +23,7 @@ PWM info
 https://www.scribd.com/doc/33888332/Dc-Motor-Speed-Control-Using-C
 How to make a drone move
 https://www.dronezon.com/learn-about-drones-quadcopters/how-a-quadcopter-works-with-propellers-and-motors-direction-design-explained/]
-How to use ESCs
+How to use ESCs (850us - 2400us)
 https://forum.arduino.cc/index.php?topic=270309.0
 
 **Look up the relationships between frequency, pulse width, and passes value
