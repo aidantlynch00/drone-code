@@ -1,5 +1,5 @@
 Coding the basics to control motors through GPIO pins
-✘ Craft a motor class that incorporates SoftPWM_GPIO export GPIO pins for motors and control their speed @started(18-09-28 12:47) @cancelled(18-10-01 13:32) @wasted(3d45m50s)
+✘ Craft a motor class that incorporates SoftPWM_GPIO export GPIO pins for motors and control their speed @started(18-09-28 12:47) @cancelled(18-10-04 13:12) @wasted(6d25m50s)
 ☐ Create a class that uses PWM output to control an ESC (only need one pin)
 
 Coding the basic for flight
@@ -27,3 +27,5 @@ How to use ESCs (850us - 2400us)
 https://forum.arduino.cc/index.php?topic=270309.0
 
 **Look up the relationships between frequency, pulse width, and passes value
+
+THIS IS PHILLIP 
