@@ -1,3 +1,6 @@
+✔ Fix SoftPWM_GPIO duty_cycle and setting value @started(18-10-05 13:12) @done(18-10-05 13:36) @lasted(24m47s)
+☐ Look into manipulating range or rewriting the PWM thread to create an extended range of speeds
+
 Coding the basics to control motors through GPIO pins
 ✘ Craft a motor class that incorporates SoftPWM_GPIO export GPIO pins for motors and control their speed @started(18-09-28 12:47) @cancelled(18-10-04 13:12) @wasted(6d25m50s)
 ☐ Create a class that uses PWM output to control an ESC (only need one pin)
