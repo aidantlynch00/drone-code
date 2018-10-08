@@ -29,4 +29,10 @@ https://www.dronezon.com/learn-about-drones-quadcopters/how-a-quadcopter-works-w
 How to use ESCs (850us - 2400us)
 https://forum.arduino.cc/index.php?topic=270309.0
 
+
+Quadcopter blog
+http://blog.pistuffing.co.uk/blog/page/96/
+Quadcopter code (Python)
+https://github.com/PiStuffing/Quadcopter/blob/master/Quadcopter.py
+
 **Look up the relationships between frequency, pulse width, and passes value
