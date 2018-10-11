@@ -12,6 +12,7 @@ class SoftPWM_GPIO : public GPIO {
 		~SoftPWM_GPIO();
 
 		int  get_duty();
+		int getRange();
 		void change_value(int change);
 		void set_value(int _value);
 };

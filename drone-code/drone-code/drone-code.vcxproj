@@ -65,6 +65,7 @@
     </RemotePostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ESC_Controller.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="SoftPWM_GPIO.cpp" />
   </ItemGroup>

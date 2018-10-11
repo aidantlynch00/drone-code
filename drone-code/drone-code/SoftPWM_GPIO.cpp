@@ -17,6 +17,10 @@ int SoftPWM_GPIO::get_duty() {
 	return value / range;
 }
 
+int SoftPWM_GPIO::getRange() {
+	return range;
+}
+
 void SoftPWM_GPIO::change_value(int change) {
 	value += change;
 	softPwmWrite(bcm_pin, value);
