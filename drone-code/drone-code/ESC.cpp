@@ -1,11 +1,11 @@
 #include <wiringPi.h>
 #include <softPwm.h>
-#include "ESC_Controller.h"
+#include "ESC.h"
 
 //Promise
 double map(double value, double lowRange1, double highRange1, double lowRange2, double highRange2);
 
-ESC_Controller::ESC_Controller(int BCM_pin) {
+ESC::ESC(int BCM_pin) {
 	//Setup soft PWM on passed pin with a range of 100 (must contain 10-20)
 	pin = new SoftPWM_GPIO(BCM_pin, 100);
 
@@ -16,18 +16,18 @@ ESC_Controller::ESC_Controller(int BCM_pin) {
 	speed = 0;
 }
 
-ESC_Controller::~ESC_Controller() {
+ESC::~ESC() {
 	delete pin;
 }
 
 //Speed comes in between 0-100
-void ESC_Controller::setSpeed(int _speed) {
+void ESC::setSpeed(int _speed) {
 	speed = _speed;
 	double value = map(speed, 0, 100, lowRange, highRange);
-	pin->set_value(value);
+	pin->setValue(value);
 }
 
-int ESC_Controller::getSpeed() {
+int ESC::getSpeed() {
 	return speed;
 }
 

@@ -17,25 +17,25 @@ GPIO::~GPIO() {
 	system("gpio unexport " + bcm_pin); //same here
 }
 
-void GPIO::set_mode(int _mode) {
+void GPIO::setMode(int _mode) {
 	mode = _mode;
 	pinMode(bcm_pin, mode);
 }
 
-void GPIO::set_pud(int _pud) {
+void GPIO::setPUD(int _pud) {
 	pud = _pud;
 	pullUpDnControl(bcm_pin, pud);
 }
 
-void GPIO::set_value(int _value) {
+void GPIO::setValue(int _value) {
 	value = _value;
 	digitalWrite(bcm_pin, value);
 }
 
-int GPIO::get_value() {
+int GPIO::getValue() {
 	return value;
 }
 
-int GPIO::get_pin() {
+int GPIO::getPin() {
 	return bcm_pin;
 }

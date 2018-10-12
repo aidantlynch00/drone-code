@@ -13,7 +13,7 @@ SoftPWM_GPIO::~SoftPWM_GPIO(){
 	//Base Class constructor implicity called here
 }
 
-int SoftPWM_GPIO::get_duty() {
+int SoftPWM_GPIO::getDuty() {
 	return value / range;
 }
 
@@ -21,12 +21,12 @@ int SoftPWM_GPIO::getRange() {
 	return range;
 }
 
-void SoftPWM_GPIO::change_value(int change) {
+void SoftPWM_GPIO::changeValue(int change) {
 	value += change;
 	softPwmWrite(bcm_pin, value);
 }
 
-void SoftPWM_GPIO::set_value(int _value) {
+void SoftPWM_GPIO::setValue(int _value) {
 	value = _value;
 	softPwmWrite(bcm_pin, value);
 }

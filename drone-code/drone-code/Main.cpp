@@ -10,37 +10,8 @@
 
 int main(void)
 {
-	wiringPiSetup();
+	wiringPiSetupGpio();
 
-	/*
-	pinMode(LED, OUTPUT);
-
-	while (true)
-	{
-		digitalWrite(LED, HIGH);  // On
-		delay(500); // ms
-		digitalWrite(LED, LOW);	  // Off
-		delay(500);
-	}*/
-
-	//THIS IS HOW BLINK WOULD BE REWRITTEN USING GPIO CLASS
-	
-	GPIO* led = new GPIO(24, OUTPUT, PUD_OFF);
-	led->set_value(HIGH);
-	delay(1000);
-	led->set_value(LOW);
-
-	delete led;
-	led = nullptr;
-
-	//BLINK AT 50%
-	SoftPWM_GPIO* pwm_led = new SoftPWM_GPIO(27);
-	pwm_led->set_value(50);
-	delay(1000);
-	pwm_led->set_value(0);
-
-	delete pwm_led;
-	pwm_led = nullptr;
 
 	return 0;
 }

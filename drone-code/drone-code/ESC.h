@@ -1,7 +1,7 @@
 #pragma once
 #include "SoftPWM_GPIO.h"
 
-class ESC_Controller {
+class ESC {
 
 public:
 	//Change these values based on the specs of the ESC (in us)
@@ -14,8 +14,8 @@ private:
 	SoftPWM_GPIO* pin;
 
 public:
-	ESC_Controller(int bcm_pin);
-	~ESC_Controller();
+	ESC(int bcm_pin);
+	~ESC();
 	void setSpeed(int speed);
 	int getSpeed();
 };

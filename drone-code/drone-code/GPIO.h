@@ -11,11 +11,11 @@ protected:
 	int value;
 
 public:
-	void set_mode(int _mode);
-	void set_pud(int _pud);
-	void set_value(int _value);
-	int get_value();
-	int get_pin();
+	void setMode(int _mode);
+	void setPUD(int _pud);
+	void setValue(int _value);
+	int getValue();
+	int getPin();
 
 	GPIO(int _bcm_pin, int _mode, int _pud);
 	~GPIO();

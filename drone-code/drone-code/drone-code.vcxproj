@@ -65,12 +65,14 @@
     </RemotePostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ESC_Controller.cpp" />
+    <ClCompile Include="ESC.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Quadcopter.cpp" />
     <ClCompile Include="SoftPWM_GPIO.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ESC_Controller.h" />
+    <ClInclude Include="ESC.h" />
+    <ClInclude Include="Quadcopter.h" />
     <ClInclude Include="SoftPWM_GPIO.h" />
   </ItemGroup>
   <ItemDefinitionGroup />
