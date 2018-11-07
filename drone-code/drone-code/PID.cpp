@@ -9,22 +9,21 @@ PID::PID(double _kp, double _ki, double _kd) {
 	i_error = 0;
 }
 
-double PID::getError(double input, double target) {
+double PID::error(double input, double target) {
 	return (target - input);
 }
 
 double* PID::compute(double input, double target, double dt) {
-	double error = getError(input, target);
-	double p_error = error;
-	i_error += (error + previous_error) * dt;
-	//i_error = self.i_error
-	double d_error = (error - previous_error) / dt;
+	double err = error(input, target);
+	double p_error = err;
+	i_error += .5 * (err + previous_error) * dt;
+	double d_error = (err - previous_error) / dt;
 
 	double p_output = kp * p_error;
 	double i_output = ki * i_error;
 	double d_output = kd * d_error;
 
-	previous_error = error;
+	previous_error = err;
 	double* pid = new double[3];
 	pid[0] = p_output;
 	pid[1] = i_output;

@@ -9,6 +9,6 @@ private:
 
 public:
 	PID(double kp, double ki, double kd);
-	double getError(double input, double target);
+	double error(double input, double target);
 	double* compute(double input, double target, double dt);
 };

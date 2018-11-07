@@ -13,4 +13,5 @@ private:
 public:
 	Quadcopter();
 	~Quadcopter();
+	void run();
 };
