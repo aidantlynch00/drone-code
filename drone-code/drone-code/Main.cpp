@@ -2,6 +2,7 @@
 #include "GPIO.h"
 #include "SoftPWM_GPIO.h"
 #include "BerryIMU.h"
+#include "math.h"
 #include <iostream>
 
 
@@ -23,12 +24,18 @@ int main(void)
 		double* gyro_out = imu.readGyro();
 		double* accel_out = imu.readAccel();
 		
+		double AccXangle = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
+		double AccYangle = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
+
 		cout << "GX: " << gyro_out[0] << endl;
 		cout << "GY: " << gyro_out[1] << endl;
 		cout << "GZ: " << gyro_out[2] << endl;
 		cout << "AX: " << accel_out[0] << endl;
 		cout << "AY: " << accel_out[1] << endl;
 		cout << "AZ: " << accel_out[2] << endl << endl;
+
+		cout << "AngleX: " << AccXangle << endl;
+		cout << "AngleY: " << AccYangle << endl << endl:
 		
 		delete gyro_out;
 		delete accel_out;
