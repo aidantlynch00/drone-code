@@ -27,6 +27,10 @@ int main(void)
 		double AccXangle = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
 		double AccYangle = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
 
+		double rate_gyr_x = (float)gyro_out[0] * 0.02;
+		double rate_gyr_y = (float)gyro_out[1] * 0.02;
+		double rate_gyr_z = (float)gyro_out[2] * 0.02;
+
 		cout << "GX: " << gyro_out[0] << endl;
 		cout << "GY: " << gyro_out[1] << endl;
 		cout << "GZ: " << gyro_out[2] << endl;
@@ -36,10 +40,13 @@ int main(void)
 
 		cout << "AngleX: " << AccXangle << endl;
 		cout << "AngleY: " << AccYangle << endl << endl;
+		cout << "RateX" << rate_gyr_x << endl;
+		cout << "RateY" << rate_gyr_y << endl;
+		cout << "RateZ" << rate_gyr_z << endl;
 		
 		delete gyro_out;
 		delete accel_out;
-		delay(2000);
+		delay(20);
 	}
 
 	return 0;
