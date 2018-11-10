@@ -67,6 +67,7 @@
   <ItemGroup>
     <ClCompile Include="BerryIMU.cpp" />
     <ClCompile Include="ESC.cpp" />
+    <ClCompile Include="IMU_Test.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="PID.cpp" />
     <ClCompile Include="PPMRead.cpp" />
@@ -77,6 +78,7 @@
     <ClInclude Include="BerryIMU.h" />
     <ClInclude Include="EnableInterrupt.h" />
     <ClInclude Include="ESC.h" />
+    <ClInclude Include="IMU_Test.h" />
     <ClInclude Include="LSM9DS0.h" />
     <ClInclude Include="LSM9DS1.h" />
     <ClInclude Include="PID.h" />
