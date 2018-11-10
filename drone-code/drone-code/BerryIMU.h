@@ -1,6 +1,7 @@
 #pragma once
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
+#include <stdint.h>
 
 class BerryIMU {
 
