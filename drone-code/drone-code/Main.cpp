@@ -40,9 +40,9 @@ int main(void)
 
 		cout << "AngleX: " << AccXangle << endl;
 		cout << "AngleY: " << AccYangle << endl << endl;
-		cout << "RateX" << rate_gyr_x << endl;
-		cout << "RateY" << rate_gyr_y << endl;
-		cout << "RateZ" << rate_gyr_z << endl;
+		cout << "RateX: " << rate_gyr_x << endl;
+		cout << "RateY: " << rate_gyr_y << endl;
+		cout << "RateZ: " << rate_gyr_z << endl << endl;
 		
 		delete gyro_out;
 		delete accel_out;
