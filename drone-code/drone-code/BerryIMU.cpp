@@ -91,7 +91,7 @@ void BerryIMU::readBlock(uint8_t command, uint8_t size, uint8_t * data){
 	}
 }
 
-void detectIMU()
+void BerryIMU::detectIMU()
 {
 	__u16 block[I2C_SMBUS_BLOCK_MAX];
 
