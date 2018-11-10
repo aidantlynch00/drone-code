@@ -13,6 +13,7 @@ int LSM9DS0 = 0;
 int LSM9DS1 = 0;
 
 BerryIMU::BerryIMU(int accelReg, int gyroReg){
+	detectIMU();
 	enableIMU();
 }
 
@@ -104,17 +105,6 @@ void BerryIMU::detectIMU()
 		printf("Unable to open I2C bus!");
 	}
 
-	//Detect if BerryIMUv1 (Which uses a LSM9DS0) is connected
-	selectDevice(file, LSM9DS0_ACC_ADDRESS);
-	int LSM9DS0_WHO_XM_response = i2c_smbus_read_byte_data(file, LSM9DS0_WHO_AM_I_XM);
-
-	selectDevice(file, LSM9DS0_GYR_ADDRESS);
-
-	int LSM9DS0_WHO_G_response = i2c_smbus_read_byte_data(file, LSM9DS0_WHO_AM_I_G);
-	if (LSM9DS0_WHO_G_response == 0xd4 && LSM9DS0_WHO_XM_response == 0x49) {
-		printf("\n\n\n#####   BerryIMUv1/LSM9DS0  DETECTED    #####\n\n");
-		LSM9DS0 = 1;
-	}
 	//Detect if BerryIMUv2 (Which uses a LSM9DS1) is connected
 	selectDevice(file, LSM9DS1_MAG_ADDRESS);
 	int LSM9DS1_WHO_M_response = i2c_smbus_read_byte_data(file, LSM9DS1_WHO_AM_I_M);
@@ -131,15 +121,6 @@ void BerryIMU::detectIMU()
 }
 
 void BerryIMU::enableIMU() {
-	if (LSM9DS0) {//For BerryIMUv1
-		// Enable accelerometer.
-		writeAccReg(LSM9DS0_CTRL_REG1_XM, 0b01100111); //  z,y,x axis enabled, continuous update,  100Hz data rate
-		writeAccReg(LSM9DS0_CTRL_REG2_XM, 0b00100000); // +/- 16G full scale
-
-		// Enable Gyro
-		writeGyrReg(LSM9DS0_CTRL_REG1_G, 0b00001111); // Normal power mode, all axes enabled
-		writeGyrReg(LSM9DS0_CTRL_REG4_G, 0b00110000); // Continous update, 2000 dps full scale
-	}
 	if (LSM9DS1) {//For BerryIMUv2      
 		// Enable the gyroscope
 		writeGyrReg(LSM9DS1_CTRL_REG4, 0b00111000);      // z, y, x axis enabled for gyro
