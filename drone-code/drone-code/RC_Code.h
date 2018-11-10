@@ -13,11 +13,16 @@ class RC_Code {
 public:
 	RC_Code(int pin);
 	~RC_Code();
-	void read();
+	void read(void);
 
 private:
 	int pin;
 	void calc_input(int channel, int pin);
-	void setup();
-	void rc_read_values();
+	void setup(void);
+	void rc_read_values(void);
+	void calc_ch1(void);
+	void calc_ch2(void);
+	void calc_ch3(void);
+	void calc_ch4(void);
+
 };

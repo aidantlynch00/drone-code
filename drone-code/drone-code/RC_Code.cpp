@@ -4,6 +4,7 @@
 #include <wiringSerial.h>
 #include <string>
 #include <cmath>
+#include <cstring>
 #include <string>
 #include "GPIO.h"
 
@@ -33,7 +34,7 @@ RC_Code::RC_Code(int pin)
     setup();
 }
 //FIX
-void RC_Code::setup() {
+void RC_Code::setup(void) {
   //Serial.begin(SERIAL_PORT_SPEED);
 
   pinMode(RC_CH1_INPUT, INPUT);
@@ -41,30 +42,30 @@ void RC_Code::setup() {
   pinMode(RC_CH3_INPUT, INPUT);
   pinMode(RC_CH4_INPUT, INPUT);
 
-  wiringPiISR(RC_CH1_INPUT, INT_EDGE_BOTH, calc_ch1);       //Creates Interrupt
-  wiringPiISR(RC_CH2_INPUT, INT_EDGE_BOTH, calc_ch2);
-  wiringPiISR(RC_CH3_INPUT, INT_EDGE_BOTH, calc_ch3);
-  wiringPiISR(RC_CH4_INPUT, INT_EDGE_BOTH, calc_ch4);
+  wiringPiISR(RC_CH1_INPUT, INT_EDGE_BOTH, &calc_ch1);       //Creates Interrupt
+  wiringPiISR(RC_CH2_INPUT, INT_EDGE_BOTH, &calc_ch2);
+  wiringPiISR(RC_CH3_INPUT, INT_EDGE_BOTH, &calc_ch3);
+  wiringPiISR(RC_CH4_INPUT, INT_EDGE_BOTH, &calc_ch4);
 }
 
-void calc_ch1()
+void RC_Code::calc_ch1(void)
 {
-    calc_input(RC_CH1, RC_CH1_INPUT)
+    calc_input(RC_CH1, RC_CH1_INPUT);
 }
 
-void calc_ch2()
+void RC_Code::calc_ch2(void)
 {
-	calc_input(RC_CH2, RC_CH2_INPUT)
+	calc_input(RC_CH2, RC_CH2_INPUT);
 }
 
-void calc_ch3()
+void RC_Code::calc_ch3(void)
 {
-	calc_input(RC_CH3, RC_CH3_INPUT)
+	calc_input(RC_CH3, RC_CH3_INPUT);
 }
 
-void calc_ch4()
+void RC_Code::calc_ch4(void)
 {
-	calc_input(RC_CH4, RC_CH4_INPUT)
+	calc_input(RC_CH4, RC_CH4_INPUT);
 }
 
 void RC_Code::calc_input(int channel, int pin)

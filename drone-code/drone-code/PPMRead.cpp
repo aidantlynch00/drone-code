@@ -26,17 +26,6 @@ PPMRead::PPMRead(int pin)
 	}*/
 }
 
-bool PPMRead::syncListener()
-{
-	bool signalRecieved = false;
-
-	while (!signalRecieved) {
-		
-	}
-
-	return false;
-}
-
 string PPMRead::valueReader()		//Reads 8 bits of information to later convert to decimal or hexaDecimal
 {
 	string strungBits = "";

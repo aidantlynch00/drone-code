@@ -6,6 +6,7 @@
 #include <iostream>
 #include "PPMRead.h"
 #include "KalmanFilter.h"
+#include "RC_Code.h"
 
 
 //link real-time library during execution with -lrt
@@ -21,7 +22,7 @@ int main(void)
 {
 	wiringPiSetupGpio();
 	BerryIMU imu{};
-	PPMRead ppmRead17{ 7 };
+	//PPMRead ppmRead17{ 7 };
 	int x = 0;
 	double* gyro_out;
 	double* accel_out;
@@ -30,7 +31,7 @@ int main(void)
 	double startTime = 0;
 	double endTime = 0;
 	double dt = 0;
-
+	RC_Code rcCode{7};
 	while(x<1){
 		dt = (endTime - startTime) / 1000000;
 		system("clear");
@@ -71,6 +72,8 @@ int main(void)
 		
 		cout << "Mag Raw X: " << mag_out[0] << endl << "Mag Raw Y: " << mag_out[1] << endl << "Mag Raw Z: " << mag_out[2] << endl << endl;
 
+		rcCode.read();
+		
 		if (endTime - startTime < 1999) {
 			delayMicroseconds(1999 - (endTime - startTime));
 		}
