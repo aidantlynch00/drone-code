@@ -3,12 +3,14 @@
 #include <wiringPi.h>
 #include <string>
 #include <cmath>
+#include <string>
+#include "GPIO.h"
 
 using namespace std;
 
 PPMRead::PPMRead(int pin)
 {
-	pinMode(pin, INPUT);
+	GPIO* pinGPIO = new GPIO(pin, INPUT, PUD_UP);
 	this->pin = pin;
 	cycle = 1;
 	startTime = millis();
@@ -62,16 +64,19 @@ int PPMRead::finalValues()
 
 uint32_t PPMRead::discoverPeriod()
 {
-	uint32_t spikeTime;
-	currentTime = millis();
+	uint32_t spikeTime = 0;
+	cout << "pin " << pin << endl;
 	while (true) {
 		int value = digitalRead(pin);			//Reads value of pin at millisecond intervals when 
+		cout << "value " << value << endl;
 		if(value == HIGH){
 			spikeTime = millis();
+			cout << spikeTime << endl;
 			break;
 		}
 	}
-	uint32_t spikeTime2;
+	delay(1);
+	uint32_t spikeTime2 = 0;
 	while (true) {
 		int value = digitalRead(pin);			//Reads value of pin at millisecond intervals when 
 		if (value == HIGH) {
@@ -79,7 +84,6 @@ uint32_t PPMRead::discoverPeriod()
 			break;
 		}
 	}
-
 	return spikeTime2 - spikeTime;
 }
 
@@ -90,7 +94,7 @@ int PPMRead::readPeriod()	//Reads 20 milliseconds worth of data
 	int milPosition = 0;
 	int expectedMilPosition = 0;
 	while (milPosition <= PERIOD) {
-		cout << milPosition << endl;
+		
 		cout << expectedMilPosition << endl;
 		if (milPosition == expectedMilPosition) {		//Reads value of pin at millisecond intervals when 
 			int value = digitalRead(pin);
@@ -108,6 +112,7 @@ int PPMRead::readPeriod()	//Reads 20 milliseconds worth of data
 		if (timeDifference(testTime, currentTime)) {
 			currentState = testTime;
 			milPosition++;
+			cout << milPosition << endl;
 		}
 		
 	}

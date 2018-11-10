@@ -51,9 +51,9 @@ int main(void)
 		delete accel_out;
 
 		
-		cout << "GPIO 17 Value: " << ppmRead17.readPeriod() << endl << endl;
-		x++;
-		delay(500);
+		cout << "GPIO 7 Value: " << ppmRead17.discoverPeriod() << endl << endl;
+		//x++;
+		delay(50);
 	}
 
 	return 0;
