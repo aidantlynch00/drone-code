@@ -4,6 +4,7 @@
 #include "BerryIMU.h"
 #include "math.h"
 #include <iostream>
+#include "PPMRead.h"
 
 
 //link real-time library during execution with -lrt
@@ -19,8 +20,10 @@ int main(void)
 {
 	wiringPiSetupGpio();
 	BerryIMU imu{0x6a, 0x1c};
-	
-	while(true){
+	PPMRead ppmRead17{ 7 };
+	int x = 0;
+	while(x<1){
+		system("clear");
 		double* gyro_out = imu.readGyro();
 		double* accel_out = imu.readAccel();
 		
@@ -46,6 +49,10 @@ int main(void)
 		
 		delete gyro_out;
 		delete accel_out;
+
+		
+		cout << "GPIO 17 Value: " << ppmRead17.readPeriod() << endl << endl;
+		x++;
 		delay(500);
 	}
 
