@@ -35,7 +35,7 @@ int main(void)
 		cout << "AZ: " << accel_out[2] << endl << endl;
 
 		cout << "AngleX: " << AccXangle << endl;
-		cout << "AngleY: " << AccYangle << endl << endl:
+		cout << "AngleY: " << AccYangle << endl << endl;
 		
 		delete gyro_out;
 		delete accel_out;
