@@ -31,7 +31,7 @@ int main(void)
 	double startTime = 0;
 	double endTime = 0;
 	double dt = 0;
-	RC_Code rcCode{7};
+	RC_Code rcCode{15};
 	while(x<1){
 		dt = (endTime - startTime) / 1000000;
 		system("clear");

@@ -17,12 +17,12 @@ public:
 
 private:
 	int pin;
-	void calc_input(int channel, int pin);
-	void setup(void);
-	void rc_read_values(void);
-	void calc_ch1(void);
-	void calc_ch2(void);
-	void calc_ch3(void);
-	void calc_ch4(void);
+	//void calc_input(int channel, int pin);
+	void setup();
+	void rc_read_values();
+	//void calc_ch1();
+	//void calc_ch2();
+	//void calc_ch3();
+	//void calc_ch4();
 
 };
