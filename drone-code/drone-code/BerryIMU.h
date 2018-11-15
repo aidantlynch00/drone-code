@@ -9,6 +9,7 @@ private:
 
 public:
 	BerryIMU(int accelReg, int gyroReg);
+	~BerryIMU();
 	double* readAccel();
 	double* readGyro();
 	double getLoopTime();
