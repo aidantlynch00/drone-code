@@ -29,6 +29,39 @@ void Quadcopter::run() {
 	bool flying = true;
 
 	//X is forward/backward, Y is side to side, Z is up/down
+
+	//Distance variables
+	double xd = 0;
+	double yd = 0;
+	double zd = 0;
+
+	//Velocity variables
+	double xv = 0;
+	double yv = 0;
+	double zv = 0;
+
+	//Acceleration variables
+	double xa = 0;
+	double ya = 0;
+	double za = 0;
+	
+	//Angle variables
+	double rd = 0;
+	double pd = 0;
+	double yd = 0;
+
+	//Angular velocity variables
+	double rv = 0;
+	double pv = 0;
+	double yv = 0;
+
+	//Angular acceleration variables
+	double ra = 0;
+	double pa = 0;
+	double ya = 0;
+	
+
+
 	//Distance PIDs
 	PID xd_pid{ 0, 0, 0 };
 	PID yd_pid{ 0, 0, 0 };
@@ -40,9 +73,9 @@ void Quadcopter::run() {
 	PID zv_pid{ 0, 0, 0 };
 
 	//Roll, Pitch, Yaw PIDs
-	PID ra_pid{ 0, 0, 0 };
-	PID pa_pid{ 0, 0, 0 };
-	PID ya_pid{ 0, 0, 0 };
+	PID rd_pid{ 0, 0, 0 };
+	PID pd_pid{ 0, 0, 0 };
+	PID yd_pid{ 0, 0, 0 };
 
 	//Roll, Pitch, and Yaw angular velocity PID's
 	PID rv_pid{ 0, 0, 0 };
@@ -53,6 +86,7 @@ void Quadcopter::run() {
 
 		//Get values from accel and gyro
 		double* accelValues = imu->readAccel();
+		double* gyroValues  = imu->readGyro();
 
 	}
 }
