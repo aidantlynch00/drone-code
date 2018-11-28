@@ -60,9 +60,7 @@ void Quadcopter::run() {
 	double pa = 0;
 	double ya = 0;
 	
-
-
-	//Distance PIDs
+	//Distance PIDs -Used for auto
 	PID xd_pid{ 0, 0, 0 };
 	PID yd_pid{ 0, 0, 0 };
 	PID zd_pid{ 0, 0, 0 };
@@ -83,10 +81,49 @@ void Quadcopter::run() {
 	PID yv_pid{ 0, 0, 0 };
 
 	while (flying) {
-
 		//Get values from accel and gyro
 		double* accelValues = imu->readAccel();
 		double* gyroValues  = imu->readGyro();
+		double dt = imu->getLoopTime();
+
+		xa = accelValues[0];
+		ya = accelValues[1];
+		za = accelValues[2];
+
+		ra = accelValues[0];
+		pa = accelValues[1];
+		ya = accelValues[2];
+
+		//-------Integration-------\\
+
+		//Integrate Acceleration values to get velocity
+		xv += xa * dt;
+		yv += ya * dt;
+		zv += za * dt;
+
+		//Integrate again to get distance values
+		xd += xv * dt;
+		yd += yv * dt;
+		zd += zv * dt;
+
+		//Integrate angular accel values from gyro to get angular velocity
+		rv += ra * dt;
+		pv += pa * dt;
+		yv += ya * dt;
+
+		//Integrate again to get the angle values
+		rd += rv * dt;
+		pd += pv * dt;
+		yd += yv * dt;
+
+		//----Collect RC Target----\\
+
+
+		//----------PID's----------\\
+
+
+
+
 
 	}
 }
