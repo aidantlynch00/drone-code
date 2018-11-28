@@ -19,11 +19,23 @@ BerryIMU::~BerryIMU(){
 
 }
 
-double * BerryIMU::readAccel(){
-	return nullptr;
+double * BerryIMU::readAccel(double *a){
+	uint8_t block[6];
+	if (LSM9DS0) {
+		selectDevice(file, LSM9DS0_ACC_ADDRESS);
+		readBlock(0x80 | LSM9DS0_OUT_X_L_A, sizeof(block), block);
+	}
+	else if (LSM9DS1) {
+		selectDevice(file, LSM9DS1_ACC_ADDRESS);
+		readBlock(0x80 | LSM9DS1_OUT_X_L_XL, sizeof(block), block);
+	}
+	*a = (int16_t)(block[0] | block[1] << 8);
+	*(a+1) = (int16_t)(block[2] | block[3] << 8);
+	*(a+2) = (int16_t)(block[4] | block[5] << 8);
+	return a;
 }
 
-double * BerryIMU::readGyro() {
+double * BerryIMU::readGyro(double *g) {
 	return nullptr;
 }
 
@@ -43,7 +55,21 @@ void BerryIMU::writeGyrReg(uint8_t reg, uint8_t value){
 
 }
 
-void enableIMU() {
+void BerryIMU::selectDevice(int file, int addr){
+	if (ioctl(file, I2C_SLAVE, addr) < 0) {
+		printf("Failed to select I2C device.");
+	}
+}
+
+void BerryIMU::readBlock(uint8_t command, uint8_t size, uint8_t * data){
+	int result = i2c_smbus_read_i2c_block_data(file, command, size, data);
+	if (result != size) {
+		printf("Failed to read block from I2C.");
+		exit(1);
+	}
+}
+
+void BerryIMU::enableIMU() {
 	if (LSM9DS0) {//For BerryIMUv1
 		// Enable accelerometer.
 		writeAccReg(LSM9DS0_CTRL_REG1_XM, 0b01100111); //  z,y,x axis enabled, continuous update,  100Hz data rate
