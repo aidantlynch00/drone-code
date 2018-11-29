@@ -16,7 +16,7 @@ BerryIMU::BerryIMU(int accelReg, int gyroReg){
 }
 
 BerryIMU::~BerryIMU(){
-
+	enableIMU();
 }
 
 double * BerryIMU::readAccel(double *a){
@@ -36,7 +36,19 @@ double * BerryIMU::readAccel(double *a){
 }
 
 double * BerryIMU::readGyro(double *g) {
-	return nullptr;
+	uint8_t block[6];
+	if (LSM9DS0) {
+		selectDevice(file, LSM9DS0_GYR_ADDRESS);
+		readBlock(0x80 | LSM9DS0_OUT_X_L_G, sizeof(block), block);
+	}
+	else if (LSM9DS1) {
+		selectDevice(file, LSM9DS1_GYR_ADDRESS);
+		readBlock(0x80 | LSM9DS1_OUT_X_L_G, sizeof(block), block);
+	}
+	*g = (int16_t)(block[0] | block[1] << 8);
+	*(g + 1) = (int16_t)(block[2] | block[3] << 8);
+	*(g + 2) = (int16_t)(block[4] | block[5] << 8);
+	return g;
 }
 
 double BerryIMU::getLoopTime() {
