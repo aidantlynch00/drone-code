@@ -6,7 +6,6 @@ Coding the basics to control motors through GPIO pins
 
 Coding the basic for flight
 ☐ Making motor speed controllable remotely with a flight controller
-    ☐ Make an app for the iPhone that can communicate with the drone via Bluetooth
     ☐ Buy a radio flight controller and map the controls to work with the drone
 ☐ Making the drone capable of basic movement (translating and rotating in a stable enviroment
 

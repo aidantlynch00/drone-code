@@ -30,6 +30,11 @@ void Quadcopter::run() {
 
 	//X is forward/backward, Y is side to side, Z is up/down
 
+	//Target velocity
+	double xv_target = 0;
+	double yv_target = 0;
+	double zv_target = 0;
+
 	//Distance variables
 	double xd = 0;
 	double yd = 0;
@@ -94,6 +99,9 @@ void Quadcopter::run() {
 		pa = accelValues[1];
 		ya = accelValues[2];
 
+		delete accelValues;
+		delete gyroValues;
+
 		//-------Integration-------\\
 
 		//Integrate Acceleration values to get velocity
@@ -117,12 +125,34 @@ void Quadcopter::run() {
 		yd += yv * dt;
 
 		//----Collect RC Target----\\
-
+		
+		double xv_target = 0;
+		double yv_target = 0;
+		double zv_target = 0;
 
 		//----------PID's----------\\
 
+		double xv_out;
+		double yv_out;
+		double zv_out;
 
+		double* xv_out_arr;
+		double* yv_out_arr;
+		double* zv_out_arr;
 
+		xv_out_arr = xv_pid.compute(xv, xv_target, dt);
+		yv_out_arr = yv_pid.compute(yv, yv_target, dt);
+		zv_out_arr = zv_pid.compute(zv, zv_target, dt);
+
+		xv_out = xv_out_arr[0] + xv_out_arr[1] + xv_out_arr[2];
+		yv_out = yv_out_arr[0] + yv_out_arr[1] + yv_out_arr[2];
+		zv_out = zv_out_arr[0] + zv_out_arr[1] + zv_out_arr[2];
+
+		delete xv_out_arr;
+		delete yv_out_arr;
+		delete zv_out_arr;
+
+		//------Change Speed-------\\
 
 
 	}
