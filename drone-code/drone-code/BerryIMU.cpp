@@ -12,14 +12,14 @@ int LSM9DS0 = 0;
 int LSM9DS1 = 0;
 
 BerryIMU::BerryIMU(int accelReg, int gyroReg){
-
-}
-
-BerryIMU::~BerryIMU(){
 	enableIMU();
 }
 
-double * BerryIMU::readAccel(double *a){
+BerryIMU::~BerryIMU(){
+	
+}
+
+double * BerryIMU::readAccel(){
 	uint8_t block[6];
 	if (LSM9DS0) {
 		selectDevice(file, LSM9DS0_ACC_ADDRESS);
@@ -29,13 +29,14 @@ double * BerryIMU::readAccel(double *a){
 		selectDevice(file, LSM9DS1_ACC_ADDRESS);
 		readBlock(0x80 | LSM9DS1_OUT_X_L_XL, sizeof(block), block);
 	}
+	double *a;
 	*a = (int16_t)(block[0] | block[1] << 8);
 	*(a+1) = (int16_t)(block[2] | block[3] << 8);
 	*(a+2) = (int16_t)(block[4] | block[5] << 8);
 	return a;
 }
 
-double * BerryIMU::readGyro(double *g) {
+double * BerryIMU::readGyro() {
 	uint8_t block[6];
 	if (LSM9DS0) {
 		selectDevice(file, LSM9DS0_GYR_ADDRESS);
@@ -45,26 +46,37 @@ double * BerryIMU::readGyro(double *g) {
 		selectDevice(file, LSM9DS1_GYR_ADDRESS);
 		readBlock(0x80 | LSM9DS1_OUT_X_L_G, sizeof(block), block);
 	}
+	double *g;
 	*g = (int16_t)(block[0] | block[1] << 8);
 	*(g + 1) = (int16_t)(block[2] | block[3] << 8);
 	*(g + 2) = (int16_t)(block[4] | block[5] << 8);
 	return g;
 }
 
-double BerryIMU::getLoopTime() {
-	return 0.0;
-}
-
 void BerryIMU::writeAccReg(uint8_t reg, uint8_t value){
+	if(LSM9DS0)
+		selectDevice(file, LSM9DS0_ACC_ADDRESS);
+	else if (LSM9DS1)
+		selectDevice(file, LSM9DS1_ACC_ADDRESS);
 
-}
-
-void BerryIMU::writeMagReg(uint8_t reg, uint8_t value){
-
+	int result = i2c_smbus_write_byte_data(file, reg, value);
+	if (result == -1) {
+		printf("Failed to write byte to I2C Acc.");
+		exit(1);
+	}
 }
 
 void BerryIMU::writeGyrReg(uint8_t reg, uint8_t value){
+	if (LSM9DS0)
+		selectDevice(file, LSM9DS0_MAG_ADDRESS);
+	else if (LSM9DS1)
+		selectDevice(file, LSM9DS1_MAG_ADDRESS);
 
+	int result = i2c_smbus_write_byte_data(file, reg, value);
+	if (result == -1) {
+		printf("Failed to write byte to I2C Mag.");
+		exit(1);
+	}
 }
 
 void BerryIMU::selectDevice(int file, int addr){
@@ -87,11 +99,6 @@ void BerryIMU::enableIMU() {
 		writeAccReg(LSM9DS0_CTRL_REG1_XM, 0b01100111); //  z,y,x axis enabled, continuous update,  100Hz data rate
 		writeAccReg(LSM9DS0_CTRL_REG2_XM, 0b00100000); // +/- 16G full scale
 
-		//Enable the magnetometer
-		writeMagReg(LSM9DS0_CTRL_REG5_XM, 0b11110000); // Temp enable, M data rate = 50Hz
-		writeMagReg(LSM9DS0_CTRL_REG6_XM, 0b01100000); // +/-12gauss
-		writeMagReg(LSM9DS0_CTRL_REG7_XM, 0b00000000); // Continuous-conversion mode
-
 		// Enable Gyro
 		writeGyrReg(LSM9DS0_CTRL_REG1_G, 0b00001111); // Normal power mode, all axes enabled
 		writeGyrReg(LSM9DS0_CTRL_REG4_G, 0b00110000); // Continuos update, 2000 dps full scale
@@ -106,10 +113,5 @@ void BerryIMU::enableIMU() {
 		writeAccReg(LSM9DS1_CTRL_REG5_XL, 0b00111000);   // z, y, x axis enabled for accelerometer
 		writeAccReg(LSM9DS1_CTRL_REG6_XL, 0b00101000);   // +/- 16g
 
-		//Enable the magnetometer
-		writeMagReg(LSM9DS1_CTRL_REG1_M, 0b10011100);   // Temp compensation enabled,Low power mode mode,80Hz ODR
-		writeMagReg(LSM9DS1_CTRL_REG2_M, 0b01000000);   // +/-12gauss
-		writeMagReg(LSM9DS1_CTRL_REG3_M, 0b00000000);   // continuos update
-		writeMagReg(LSM9DS1_CTRL_REG4_M, 0b00000000);   // lower power mode for Z axis
 	}
 }
