@@ -74,11 +74,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BerryIMU.h" />
+    <ClInclude Include="EnableInterrupt.h" />
     <ClInclude Include="ESC.h" />
     <ClInclude Include="LSM9DS0.h" />
     <ClInclude Include="LSM9DS1.h" />
     <ClInclude Include="PID.h" />
     <ClInclude Include="Quadcopter.h" />
+    <ClInclude Include="SerialValueReading.h" />
     <ClInclude Include="SoftPWM_GPIO.h" />
   </ItemGroup>
   <ItemDefinitionGroup />
