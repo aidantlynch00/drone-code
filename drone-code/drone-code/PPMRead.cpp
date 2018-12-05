@@ -24,3 +24,7 @@ int PPMRead::valueReader(int pin)
 {
 	return 0;
 }
+
+PPMRead::~PPMRead()
+{
+}

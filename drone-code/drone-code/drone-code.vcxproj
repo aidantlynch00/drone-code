@@ -69,6 +69,7 @@
     <ClCompile Include="ESC.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="PID.cpp" />
+    <ClCompile Include="PPMRead.cpp" />
     <ClCompile Include="Quadcopter.cpp" />
     <ClCompile Include="SoftPWM_GPIO.cpp" />
   </ItemGroup>
@@ -79,6 +80,7 @@
     <ClInclude Include="LSM9DS0.h" />
     <ClInclude Include="LSM9DS1.h" />
     <ClInclude Include="PID.h" />
+    <ClInclude Include="PPMRead.h" />
     <ClInclude Include="Quadcopter.h" />
     <ClInclude Include="SerialValueReading.h" />
     <ClInclude Include="SoftPWM_GPIO.h" />
