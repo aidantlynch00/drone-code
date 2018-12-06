@@ -1,6 +1,7 @@
 #pragma once
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
+#include <stdint.h>
 
 class BerryIMU {
 
@@ -13,6 +14,7 @@ public:
 	double* readAccel(); //   m/sec^2 in x, y, z
 	double* readGyro(); // angular acceleration
 	void enableIMU();
+	void detectIMU();
 	void writeAccReg(uint8_t reg, uint8_t value);
 	void writeGyrReg(uint8_t reg, uint8_t value);
 	void selectDevice(int file, int addr);

@@ -29,7 +29,7 @@ double * BerryIMU::readAccel(){
 		selectDevice(file, LSM9DS1_ACC_ADDRESS);
 		readBlock(0x80 | LSM9DS1_OUT_X_L_XL, sizeof(block), block);
 	}
-	double *a;
+	double *a = new double[3];
 	*a = (int16_t)(block[0] | block[1] << 8);
 	*(a+1) = (int16_t)(block[2] | block[3] << 8);
 	*(a+2) = (int16_t)(block[4] | block[5] << 8);
@@ -46,7 +46,7 @@ double * BerryIMU::readGyro() {
 		selectDevice(file, LSM9DS1_GYR_ADDRESS);
 		readBlock(0x80 | LSM9DS1_OUT_X_L_G, sizeof(block), block);
 	}
-	double *g;
+	double *g = new double[3];
 	*g = (int16_t)(block[0] | block[1] << 8);
 	*(g + 1) = (int16_t)(block[2] | block[3] << 8);
 	*(g + 2) = (int16_t)(block[4] | block[5] << 8);
@@ -137,7 +137,7 @@ void BerryIMU::enableIMU() {
 
 		// Enable Gyro
 		writeGyrReg(LSM9DS0_CTRL_REG1_G, 0b00001111); // Normal power mode, all axes enabled
-		writeGyrReg(LSM9DS0_CTRL_REG4_G, 0b00110000); // Continuos update, 2000 dps full scale
+		writeGyrReg(LSM9DS0_CTRL_REG4_G, 0b00110000); // Continous update, 2000 dps full scale
 	}
 	if (LSM9DS1) {//For BerryIMUv2      
 		// Enable the gyroscope
