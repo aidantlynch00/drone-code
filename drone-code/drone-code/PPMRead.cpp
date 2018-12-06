@@ -5,8 +5,12 @@ PPMRead::PPMRead()
 {
 	pinMode(RC_CHANNEL_1, INPUT);
 	pinMode(RC_CHANNEL_1, INPUT);
-	syncListener();
-	
+	startTime = micros();
+	currentTime = startTime;
+	positionTime = startTime;
+	if (syncListener()) {
+		valueReader(RC_CHANNEL_1);
+	}
 }
 
 bool PPMRead::syncListener()
@@ -14,7 +18,7 @@ bool PPMRead::syncListener()
 	bool signaRecieved = false;
 
 	while (!signaRecieved) {
-
+		
 	}
 
 	return false;
