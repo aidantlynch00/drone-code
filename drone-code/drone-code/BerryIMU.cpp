@@ -62,7 +62,6 @@ void BerryIMU::writeAccReg(uint8_t reg, uint8_t value){
 	int result = i2c_smbus_write_byte_data(file, reg, value);
 	if (result == -1) {
 		printf("Failed to write byte to I2C Acc.");
-		exit(1);
 	}
 }
 
@@ -75,7 +74,6 @@ void BerryIMU::writeGyrReg(uint8_t reg, uint8_t value){
 	int result = i2c_smbus_write_byte_data(file, reg, value);
 	if (result == -1) {
 		printf("Failed to write byte to I2C Mag.");
-		exit(1);
 	}
 }
 
@@ -89,7 +87,45 @@ void BerryIMU::readBlock(uint8_t command, uint8_t size, uint8_t * data){
 	int result = i2c_smbus_read_i2c_block_data(file, command, size, data);
 	if (result != size) {
 		printf("Failed to read block from I2C.");
-		exit(1);
+	}
+}
+
+void detectIMU()
+{
+	__u16 block[I2C_SMBUS_BLOCK_MAX];
+
+	int res, bus, size;
+
+	char filename[20];
+	sprintf(filename, "/dev/i2c-%d", 1);
+	file = open(filename, O_RDWR);
+	if (file < 0) {
+		printf("Unable to open I2C bus!");
+	}
+
+	//Detect if BerryIMUv1 (Which uses a LSM9DS0) is connected
+	selectDevice(file, LSM9DS0_ACC_ADDRESS);
+	int LSM9DS0_WHO_XM_response = i2c_smbus_read_byte_data(file, LSM9DS0_WHO_AM_I_XM);
+
+	selectDevice(file, LSM9DS0_GYR_ADDRESS);
+
+	int LSM9DS0_WHO_G_response = i2c_smbus_read_byte_data(file, LSM9DS0_WHO_AM_I_G);
+	if (LSM9DS0_WHO_G_response == 0xd4 && LSM9DS0_WHO_XM_response == 0x49) {
+		printf("\n\n\n#####   BerryIMUv1/LSM9DS0  DETECTED    #####\n\n");
+		LSM9DS0 = 1;
+	}
+	//Detect if BerryIMUv2 (Which uses a LSM9DS1) is connected
+	selectDevice(file, LSM9DS1_MAG_ADDRESS);
+	int LSM9DS1_WHO_M_response = i2c_smbus_read_byte_data(file, LSM9DS1_WHO_AM_I_M);
+	selectDevice(file, LSM9DS1_GYR_ADDRESS);
+	int LSM9DS1_WHO_XG_response = i2c_smbus_read_byte_data(file, LSM9DS1_WHO_AM_I_XG);
+
+	if (LSM9DS1_WHO_XG_response == 0x68 && LSM9DS1_WHO_M_response == 0x3d) {
+		printf("\n\n\n#####   BerryIMUv2/LSM9DS1  DETECTED    #####\n\n");
+		LSM9DS1 = 1;
+	}
+	if (!LSM9DS0 && !LSM9DS1) {
+		printf("NO IMU DETECTED\n");
 	}
 }
 
