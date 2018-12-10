@@ -5,9 +5,11 @@ PPMRead::PPMRead()
 {
 	pinMode(RC_CHANNEL_1, INPUT);
 	pinMode(RC_CHANNEL_1, INPUT);
+	cycle = 1;
 	startTime = micros();
 	currentTime = startTime;
-	positionTime = startTime;
+	positionTime = currentTime - startTime;
+	currentState = LOW;
 	if (syncListener()) {
 		valueReader(RC_CHANNEL_1);
 	}
@@ -26,6 +28,10 @@ bool PPMRead::syncListener()
 
 int PPMRead::valueReader(int pin)
 {
+	if (digitalRead(pin) == HIGH) {
+		positionTime = micros() - startTime;
+	}
+
 	return 0;
 }
 

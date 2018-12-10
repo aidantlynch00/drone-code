@@ -19,8 +19,8 @@ class PPMRead {
 		uint32_t startTime;
 		uint32_t currentTime;
 		uint32_t positionTime;
-		int cycles;
+		int cycle;
 		bool synced;
-
+		int currentState;
 
 };
