@@ -85,11 +85,15 @@ void Quadcopter::run() {
 	PID pv_pid{ 0, 0, 0 };
 	PID yv_pid{ 0, 0, 0 };
 
+	int startTime = 0;
+	int endTime = 0;
 	while (flying) {
+		double dt = endTime - startTime;
+		startTime = micros();
+
 		//Get values from accel and gyro
 		double* accelValues = imu->readAccel();
 		double* gyroValues  = imu->readGyro();
-		double dt = imu->getLoopTime();
 
 		xa = accelValues[0];
 		ya = accelValues[1];
@@ -153,7 +157,14 @@ void Quadcopter::run() {
 		delete zv_out_arr;
 
 		//------Change Speed-------\\
+		
+		double z_pwm = /*hover_pwm + */zv_out;
 
-
+		//--Loop time corrections--\\
+		endTime = micros();
+		
+		if (endTime - startTime < 1999) {
+			delayMicroseconds(1999 - (endTime - startTime));
+		}
 	}
 }
