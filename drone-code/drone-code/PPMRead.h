@@ -4,13 +4,11 @@
 
 #define PERIOD			20
 #define SAMPLING_PERIOD 1
-#define RC_CHANNEL_1	17
-#define RC_CHANNEL_2	18
-#define BAUD_RATE		2
+#define BITS			8
 
 class PPMRead {
 	public:
-		PPMRead();
+		PPMRead(int pin);
 		~PPMRead();
 		bool syncListener();
 		int valueReader(int pin);
@@ -22,5 +20,6 @@ class PPMRead {
 		int cycle;
 		bool synced;
 		int currentState;
-
+		int readPeriod(int pin);
+		bool timeDifference(uint32_t currentTime, uint32_t previousTime);
 };
