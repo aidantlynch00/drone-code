@@ -16,6 +16,8 @@ class PPMRead {
 		bool syncListener();
 		string valueReader(int pin);
 		int binaryToDeci(string value);
+		int finalValues(int pin);
+		uint32_t discoverPeriod(int pin);
 
 	private:
 		uint32_t startTime;

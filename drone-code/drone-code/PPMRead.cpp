@@ -13,9 +13,13 @@ PPMRead::PPMRead(int pin)
 	currentTime = startTime;
 	positionTime = currentTime - startTime;
 	currentState = LOW;
-	if (syncListener()) {
-		int value = binaryToDeci(valueReader(pin));
-	}
+	/*if (syncListener()) {
+		int count = 0
+		while (count < 100) {
+			if(finalValues(pin) == HIGH)			//discover values first
+
+		}
+	}*/
 }
 
 bool PPMRead::syncListener()
@@ -47,6 +51,34 @@ int PPMRead::binaryToDeci(string value)
 		num += value[x] + pow(2, BITS - x);
 	}
 	return num;
+}
+
+int PPMRead::finalValues(int pin)
+{
+	return binaryToDeci(valueReader(pin));
+}
+
+uint32_t PPMRead::discoverPeriod(int pin)
+{
+	uint32_t spikeTime;
+	currentTime = millis();
+	while (true) {
+		int value = digitalRead(pin);			//Reads value of pin at millisecond intervals when 
+		if(value == HIGH){
+			spikeTime = millis();
+			break;
+		}
+	}
+	uint32_t spikeTime2;
+	while (true) {
+		int value = digitalRead(pin);			//Reads value of pin at millisecond intervals when 
+		if (value == HIGH) {
+			spikeTime2 = millis();
+			break;
+		}
+	}
+
+	return spikeTime2 - spikeTime;
 }
 
 int PPMRead::readPeriod(int pin)	//Reads 20 milliseconds worth of data
