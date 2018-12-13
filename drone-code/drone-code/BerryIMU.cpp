@@ -22,11 +22,7 @@ BerryIMU::~BerryIMU(){
 
 double * BerryIMU::readAccel(){
 	uint8_t block[6];
-	if (LSM9DS0) {
-		selectDevice(file, LSM9DS0_ACC_ADDRESS);
-		readBlock(0x80 | LSM9DS0_OUT_X_L_A, sizeof(block), block);
-	}
-	else if (LSM9DS1) {
+	if (LSM9DS1) {
 		selectDevice(file, LSM9DS1_ACC_ADDRESS);
 		readBlock(0x80 | LSM9DS1_OUT_X_L_XL, sizeof(block), block);
 	}
@@ -39,11 +35,7 @@ double * BerryIMU::readAccel(){
 
 double * BerryIMU::readGyro() {
 	uint8_t block[6];
-	if (LSM9DS0) {
-		selectDevice(file, LSM9DS0_GYR_ADDRESS);
-		readBlock(0x80 | LSM9DS0_OUT_X_L_G, sizeof(block), block);
-	}
-	else if (LSM9DS1) {
+	if (LSM9DS1) {
 		selectDevice(file, LSM9DS1_GYR_ADDRESS);
 		readBlock(0x80 | LSM9DS1_OUT_X_L_G, sizeof(block), block);
 	}
@@ -55,9 +47,7 @@ double * BerryIMU::readGyro() {
 }
 
 void BerryIMU::writeAccReg(uint8_t reg, uint8_t value){
-	if(LSM9DS0)
-		selectDevice(file, LSM9DS0_ACC_ADDRESS);
-	else if (LSM9DS1)
+	if (LSM9DS1)
 		selectDevice(file, LSM9DS1_ACC_ADDRESS);
 
 	int result = i2c_smbus_write_byte_data(file, reg, value);
@@ -67,9 +57,7 @@ void BerryIMU::writeAccReg(uint8_t reg, uint8_t value){
 }
 
 void BerryIMU::writeGyrReg(uint8_t reg, uint8_t value){
-	if (LSM9DS0)
-		selectDevice(file, LSM9DS0_MAG_ADDRESS);
-	else if (LSM9DS1)
+	if (LSM9DS1)
 		selectDevice(file, LSM9DS1_MAG_ADDRESS);
 
 	int result = i2c_smbus_write_byte_data(file, reg, value);
