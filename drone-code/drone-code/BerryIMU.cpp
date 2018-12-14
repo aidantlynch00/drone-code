@@ -58,7 +58,7 @@ void BerryIMU::writeAccReg(uint8_t reg, uint8_t value){
 
 void BerryIMU::writeGyrReg(uint8_t reg, uint8_t value){
 	if (LSM9DS1)
-		selectDevice(file, LSM9DS1_MAG_ADDRESS);
+		selectDevice(file, LSM9DS1_GYR_ADDRESS);
 
 	int result = i2c_smbus_write_byte_data(file, reg, value);
 	if (result == -1) {
