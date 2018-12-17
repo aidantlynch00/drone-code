@@ -4,6 +4,7 @@
 #include "BerryIMU.h"
 #include "math.h"
 #include <iostream>
+#include "PPMRead.h"
 
 
 //link real-time library during execution with -lrt
@@ -46,6 +47,10 @@ int main(void)
 		
 		delete gyro_out;
 		delete accel_out;
+
+		PPMRead ppmRead17{ 17 };
+		cout << "GPIO 17 Value: " << ppmRead17.finalValues() << endl << endl;
+
 		delay(500);
 	}
 
