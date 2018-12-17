@@ -44,23 +44,23 @@ double * BerryIMU::readGyro() {
 	return g;
 }
 
-void BerryIMU::writeAccReg(uint8_t reg, uint8_t value){
+void BerryIMU::writeAccelReg(uint8_t reg, uint8_t value){
 	if (LSM9DS1)
 		selectDevice(file, LSM9DS1_ACC_ADDRESS);
 
 	int result = i2c_smbus_write_byte_data(file, reg, value);
 	if (result == -1) {
-		printf("Failed to write byte to I2C Acc.");
+		printf("Failed to write byte to Accel.");
 	}
 }
 
-void BerryIMU::writeGyrReg(uint8_t reg, uint8_t value){
+void BerryIMU::writeGyroReg(uint8_t reg, uint8_t value){
 	if (LSM9DS1)
 		selectDevice(file, LSM9DS1_GYR_ADDRESS);
 
 	int result = i2c_smbus_write_byte_data(file, reg, value);
 	if (result == -1) {
-		printf("Failed to write byte to I2C Mag.");
+		printf("Failed to write byte to I2C Gyro.");
 	}
 }
 
@@ -90,7 +90,6 @@ void BerryIMU::detectIMU()
 		printf("Unable to open I2C bus!");
 	}
 
-	//Detect if BerryIMUv2 (Which uses a LSM9DS1) is connected
 	selectDevice(file, LSM9DS1_MAG_ADDRESS);
 	int LSM9DS1_WHO_M_response = i2c_smbus_read_byte_data(file, LSM9DS1_WHO_AM_I_M);
 	selectDevice(file, LSM9DS1_GYR_ADDRESS);
@@ -100,21 +99,21 @@ void BerryIMU::detectIMU()
 		printf("\n\n\n#####   BerryIMUv2/LSM9DS1  DETECTED    #####\n\n");
 		LSM9DS1 = 1;
 	}
-	if (!LSM9DS0 && !LSM9DS1) {
+	if (!LSM9DS1) {
 		printf("NO IMU DETECTED\n");
 	}
 }
 
 void BerryIMU::enableIMU() {
-	if (LSM9DS1) {//For BerryIMUv2      
+	if (LSM9DS1) {     
 		// Enable the gyroscope
-		writeGyrReg(LSM9DS1_CTRL_REG4, 0b00111000);      // z, y, x axis enabled for gyro
-		writeGyrReg(LSM9DS1_CTRL_REG1_G, 0b10111000);    // Gyro ODR = 476Hz, 2000 dps
-		writeGyrReg(LSM9DS1_ORIENT_CFG_G, 0b10111000);   // Swap orientation 
+		writeGyroReg(LSM9DS1_CTRL_REG4, 0b00111000);      // z, y, x axis enabled for gyro
+		writeGyroReg(LSM9DS1_CTRL_REG1_G, 0b10111000);    // Gyro ODR = 476Hz, 2000 dps
+		writeGyroReg(LSM9DS1_ORIENT_CFG_G, 0b10111000);   // Swap orientation 
 
 		// Enable the accelerometer
-		writeAccReg(LSM9DS1_CTRL_REG5_XL, 0b00111000);   // z, y, x axis enabled for accelerometer
-		writeAccReg(LSM9DS1_CTRL_REG6_XL, 0b00101000);   // +/- 16g
+		writeAccelReg(LSM9DS1_CTRL_REG5_XL, 0b00111000);   // z, y, x axis enabled for accelerometer
+		writeAccelReg(LSM9DS1_CTRL_REG6_XL, 0b00101000);   // +/- 16g
 
 	}
 }
