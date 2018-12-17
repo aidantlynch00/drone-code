@@ -79,7 +79,6 @@
     <ClInclude Include="EnableInterrupt.h" />
     <ClInclude Include="ESC.h" />
     <ClInclude Include="IMU_Test.h" />
-    <ClInclude Include="LSM9DS0.h" />
     <ClInclude Include="LSM9DS1.h" />
     <ClInclude Include="PID.h" />
     <ClInclude Include="PPMRead.h" />

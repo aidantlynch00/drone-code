@@ -3,12 +3,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "linux/i2c-dev.h"
-#include "LSM9DS0.h"
 #include "LSM9DS1.h"
 #include "BerryIMU.h"
 
 int file; 
-int LSM9DS0 = 0;
 int LSM9DS1 = 0;
 
 BerryIMU::BerryIMU(int accelReg, int gyroReg){
