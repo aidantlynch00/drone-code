@@ -8,6 +8,7 @@ using namespace std;
 PPMRead::PPMRead(int pin)
 {
 	pinMode(pin, INPUT);
+	this->pin = pin;
 	cycle = 1;
 	startTime = millis();
 	currentTime = startTime;
@@ -33,12 +34,12 @@ bool PPMRead::syncListener()
 	return false;
 }
 
-string PPMRead::valueReader(int pin)		//Reads 8 bits of information to later convert to decimal or hexaDecimal
+string PPMRead::valueReader()		//Reads 8 bits of information to later convert to decimal or hexaDecimal
 {
 	string strungBits = "";
 
 	for (int x = 0; x < BITS; x++) {
-		strungBits += to_string(readPeriod(pin));
+		strungBits += to_string(readPeriod());
 	}
 	
 	return strungBits;
@@ -53,12 +54,12 @@ int PPMRead::binaryToDeci(string value)
 	return num;
 }
 
-int PPMRead::finalValues(int pin)
+int PPMRead::finalValues()
 {
-	return binaryToDeci(valueReader(pin));
+	return binaryToDeci(valueReader());
 }
 
-uint32_t PPMRead::discoverPeriod(int pin)
+uint32_t PPMRead::discoverPeriod()
 {
 	uint32_t spikeTime;
 	currentTime = millis();
@@ -81,7 +82,7 @@ uint32_t PPMRead::discoverPeriod(int pin)
 	return spikeTime2 - spikeTime;
 }
 
-int PPMRead::readPeriod(int pin)	//Reads 20 milliseconds worth of data
+int PPMRead::readPeriod()	//Reads 20 milliseconds worth of data
 {
 	int bit = -1;
 	currentTime = millis();
