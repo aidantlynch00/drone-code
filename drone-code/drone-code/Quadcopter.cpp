@@ -1,5 +1,6 @@
 #include <map>
 #include <string>
+#include "math.h"
 #include "ESC.h"
 #include "Quadcopter.h"
 #include "PID.h"
@@ -29,26 +30,6 @@ void Quadcopter::run() {
 	bool flying = true;
 
 	//X is forward/backward, Y is side to side, Z is up/down
-
-	//Target velocity
-	double xv_target = 0;
-	double yv_target = 0;
-	double zv_target = 0;
-
-	//Distance variables
-	double xd = 0;
-	double yd = 0;
-	double zd = 0;
-
-	//Velocity variables
-	double xv = 0;
-	double yv = 0;
-	double zv = 0;
-
-	//Acceleration variables
-	double xa = 0;
-	double ya = 0;
-	double za = 0;
 	
 	//Angle variables
 	double rd = 0;
@@ -65,15 +46,7 @@ void Quadcopter::run() {
 	double pa = 0;
 	double ya = 0;
 	
-	//Distance PIDs -Used for auto
-	PID xd_pid{ 0, 0, 0 };
-	PID yd_pid{ 0, 0, 0 };
-	PID zd_pid{ 0, 0, 0 };
 
-	//Velocity PIDs
-	PID xv_pid{ 0, 0, 0 };
-	PID yv_pid{ 0, 0, 0 };
-	PID zv_pid{ 0, 0, 0 };
 
 	//Roll, Pitch, Yaw PIDs
 	PID rd_pid{ 0, 0, 0 };
@@ -87,36 +60,28 @@ void Quadcopter::run() {
 
 	int startTime = 0;
 	int endTime = 0;
+
 	while (flying) {
 		double dt = endTime - startTime;
 		startTime = micros();
 
 		//Get values from accel and gyro
-		double* accelValues = imu->readAccel();
-		double* gyroValues  = imu->readGyro();
+		double* accel_out = imu->readAccel();
+		double* gyro_out  = imu->readGyro();
 
-		xa = accelValues[0];
-		ya = accelValues[1];
-		za = accelValues[2];
+		double AccXangle = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
+		double AccYangle = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
 
-		ra = accelValues[0];
-		pa = accelValues[1];
-		ya = accelValues[2];
+		double rate_gyr_x = (float)gyro_out[0] * 0.5;
+		double rate_gyr_y = (float)gyro_out[1] * 0.5;
+		double rate_gyr_z = (float)gyro_out[2] * 0.5;
 
-		delete accelValues;
-		delete gyroValues;
+		delete accel_out;
+		delete gyro_out;
 
 		//-------Integration-------\\
 
-		//Integrate Acceleration values to get velocity
-		xv += xa * dt;
-		yv += ya * dt;
-		zv += za * dt;
-
-		//Integrate again to get distance values
-		xd += xv * dt;
-		yd += yv * dt;
-		zd += zv * dt;
+		
 
 		//Integrate angular accel values from gyro to get angular velocity
 		rv += ra * dt;
@@ -135,6 +100,65 @@ void Quadcopter::run() {
 		double zv_target = 0;
 
 		//----------PID's----------\\
+
+		
+
+		//------Change Speed-------\\
+		
+		double z_pwm = /*hover_pwm + */zv_out;
+
+		//--Loop time corrections--\\
+		endTime = micros();
+		
+		if (endTime - startTime < 1999) {
+			delayMicroseconds(1999 - (endTime - startTime));
+		}
+	}
+}
+
+/*
+//Target velocity
+	double xv_target = 0;
+	double yv_target = 0;
+	double zv_target = 0;
+
+	//Distance variables
+	double xd = 0;
+	double yd = 0;
+	double zd = 0;
+
+	//Velocity variables
+	double xv = 0;
+	double yv = 0;
+	double zv = 0;
+
+	//Acceleration variables
+	double xa = 0;
+	double ya = 0;
+	double za = 0;
+
+
+		//Distance PIDs -Used for auto
+	PID xd_pid{ 0, 0, 0 };
+	PID yd_pid{ 0, 0, 0 };
+	PID zd_pid{ 0, 0, 0 };
+
+	//Velocity PIDs
+	PID xv_pid{ 0, 0, 0 };
+	PID yv_pid{ 0, 0, 0 };
+	PID zv_pid{ 0, 0, 0 };
+
+
+	//Integrate Acceleration values to get velocity
+		xv += xa * dt;
+		yv += ya * dt;
+		zv += za * dt;
+
+		//Integrate again to get distance values
+		xd += xv * dt;
+		yd += yv * dt;
+		zd += zv * dt;
+
 
 		double xv_out;
 		double yv_out;
@@ -155,16 +179,4 @@ void Quadcopter::run() {
 		delete xv_out_arr;
 		delete yv_out_arr;
 		delete zv_out_arr;
-
-		//------Change Speed-------\\
-		
-		double z_pwm = /*hover_pwm + */zv_out;
-
-		//--Loop time corrections--\\
-		endTime = micros();
-		
-		if (endTime - startTime < 1999) {
-			delayMicroseconds(1999 - (endTime - startTime));
-		}
-	}
-}
+*/
