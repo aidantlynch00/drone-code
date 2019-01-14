@@ -72,6 +72,12 @@ void Quadcopter::run() {
 		double AccXangle = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
 		double AccYangle = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
 
+		AccXangle -= 180;
+		if (AccYangle > 90)
+			AccYangle -= 270;
+		else
+			AccYangle += 90;
+
 		double rate_gyr_x = (float)gyro_out[0] * 0.5;
 		double rate_gyr_y = (float)gyro_out[1] * 0.5;
 		double rate_gyr_z = (float)gyro_out[2] * 0.5;
