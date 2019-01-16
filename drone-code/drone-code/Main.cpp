@@ -26,6 +26,7 @@ int main(void)
 		system("clear");
 		double* gyro_out = imu.readGyro();
 		double* accel_out = imu.readAccel();
+		double* mag_out = imu.readMag();
 		
 		double AccXangle = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
 		double AccYangle = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
@@ -53,11 +54,15 @@ int main(void)
 		cout << "RateY: " << rate_gyr_y << endl;
 		cout << "RateZ: " << rate_gyr_z << endl << endl;
 		
+
+		printf("magRaw X %i    \tmagRaw Y %i \tMagRaw Z %i \n", mag_out[0], mag_out[1], mag_out[2]);
+
+
+		delete mag_out;
 		delete gyro_out;
 		delete accel_out;
 
-		
-		cout << "GPIO 7 Value: " << ppmRead17.discoverPeriod() << endl << endl;
+		//cout << "GPIO 7 Value: " << ppmRead17.discoverPeriod() << endl << endl;
 		//x++;
 		delay(50);
 	}
