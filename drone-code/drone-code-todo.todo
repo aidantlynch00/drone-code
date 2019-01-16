@@ -2,7 +2,12 @@
 
 Coding the basics to control motors through GPIO pins
 ✔ Create a class that uses PWM output to control an ESC (only need one pin) @done(18-10-12 12:59)
-☐ Code a Quadcopter class
+Quadcopter class:
+    ☐ Use magnetometer to calculate heading and improve yaw stabilization
+    ✔ Clean up variable creation, pushing all inits outside of the fly loop @done(19-01-16 13:32)
+    ☐ Combine magnotometer readings with rate_gyro_z in a kalman filter to eliminate noise
+    
+
 
 Coding the basic for flight
 ☐ Making motor speed controllable remotely with a flight controller

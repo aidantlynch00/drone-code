@@ -5,6 +5,7 @@
 #include "Quadcopter.h"
 #include "PID.h"
 #include "BerryIMU.h"
+#include "KalmanFilter.h"
 
 Quadcopter::Quadcopter() {
 	//TODO: Replace pin numbers when hardware is connected
@@ -13,7 +14,7 @@ Quadcopter::Quadcopter() {
 	motors["BL"] = new ESC(1);
 	motors["BR"] = new ESC(1);
 
-	imu = new BerryIMU{ 0x00, 0x00 };
+	imu = new BerryIMU{};
 }
 
 Quadcopter::~Quadcopter() {
@@ -29,85 +30,93 @@ Quadcopter::~Quadcopter() {
 void Quadcopter::run() {
 	bool flying = true;
 
-	//X is forward/backward, Y is side to side, Z is up/down
+	//Pitch is rotating about the Y axis, Roll is rotating about the X axis, Yaw is rotating about the Z axis
 	
 	//Angle variables
-	double rd = 0;
-	double pd = 0;
-	double yd = 0;
+	double ra = 0;
+	double pa = 0;
+	double ya = 0;
 
 	//Angular velocity variables
 	double rv = 0;
 	double pv = 0;
 	double yv = 0;
 
-	//Angular acceleration variables
-	double ra = 0;
-	double pa = 0;
-	double ya = 0;
-	
-
+	//Filter
+	KalmanFilter* filter = new KalmanFilter();
 
 	//Roll, Pitch, Yaw PIDs
-	PID rd_pid{ 0, 0, 0 };
-	PID pd_pid{ 0, 0, 0 };
-	PID yd_pid{ 0, 0, 0 };
+	PID ra_pid{ 0, 0, 0 };
+	PID pa_pid{ 0, 0, 0 };
+	PID ya_pid{ 0, 0, 0 };
 
 	//Roll, Pitch, and Yaw angular velocity PID's
 	PID rv_pid{ 0, 0, 0 };
 	PID pv_pid{ 0, 0, 0 };
 	PID yv_pid{ 0, 0, 0 };
 
-	int startTime = 0;
-	int endTime = 0;
+	//Raw output arrays
+	double* accel_out;
+	double* gyro_out;
+
+	//PID output arrays
+	double* ra_pid_out;
+	double* pa_pid_out;
+	double* ya_pid_out;
+
+	double* rv_pid_out;
+	double* pv_pid_out;
+	double* yv_pid_out;
+	
+	//Time variables
+	double startTime = 0;
+	double endTime = 0;
+	double dt;
 
 	while (flying) {
-		double dt = endTime - startTime;
+		dt = endTime - startTime;
 		startTime = micros();
 
+		//TODO: Use magnotemeter to help with yaw
+
 		//Get values from accel and gyro
-		double* accel_out = imu->readAccel();
-		double* gyro_out  = imu->readGyro();
+		accel_out = imu->readAccel();
+		gyro_out = imu->readGyro();
 
-		double AccXangle = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
-		double AccYangle = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
+		ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
+		pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
 
-		AccXangle -= 180;
-		if (AccYangle > 90)
-			AccYangle -= 270;
-		else
-			AccYangle += 90;
+		rv = (float)gyro_out[0] * 0.5; //rgx
+		pv = (float)gyro_out[1] * 0.5; //rgy
+		ya = (float)gyro_out[2] * 0.5; //rgz
 
-		double rate_gyr_x = (float)gyro_out[0] * 0.5;
-		double rate_gyr_y = (float)gyro_out[1] * 0.5;
-		double rate_gyr_z = (float)gyro_out[2] * 0.5;
+		ra = filter->kalmanFilterX(ra, rv, dt);
+		pa = filter->kalmanFilterY(pa, pv, dt);
+		//Kalman Filter Z??
+
+		//Convert angles to +/- 180
+		             ra -= 180;
+		if (pa > 90) pa -= 270;
+		else         pa +=  90;
 
 		delete accel_out;
 		delete gyro_out;
 
-		//-------Integration-------\\
-
-		
-
-		//Integrate angular accel values from gyro to get angular velocity
-		rv += ra * dt;
-		pv += pa * dt;
-		yv += ya * dt;
-
-		//Integrate again to get the angle values
-		rd += rv * dt;
-		pd += pv * dt;
-		yd += yv * dt;
-
 		//----Collect RC Target----\\
 		
-		double xv_target = 0;
-		double yv_target = 0;
-		double zv_target = 0;
+		double ra_target = 0;
+		double pa_target = 0;
+		double ya_target = 0;
 
 		//----------PID's----------\\
 
-		
+		ra_pid_out = ra_pid.compute(ra, ra_target, dt);
+		pa_pid_out = pa_pid.compute(pa, pa_target, dt);
+		ya_pid_out = ya_pid.compute(ya, ya_target, dt);
+
+		rv_pid_out = rv_pid.compute(rv, rv_target, dt);
+		pv_pid_out = pv_pid.compute(pv, pv_target, dt);
+		yv_pid_out = yv_pid.compute(yv, yv_target, dt);
 
 		//------Change Speed-------\\
 		
@@ -121,6 +130,36 @@ void Quadcopter::run() {
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
 //Target velocity
@@ -185,4 +224,20 @@ void Quadcopter::run() {
 		delete xv_out_arr;
 		delete yv_out_arr;
 		delete zv_out_arr;
+
+
+			//-------Integration-------\\
+
+
+
+		//Integrate angular accel values from gyro to get angular velocity
+		rv += ra * dt;
+		pv += pa * dt;
+		yv += ya * dt;
+
+		//Integrate again to get the angle values
+		ra += rv * dt;
+		pd += pv * dt;
+		yd += yv * dt;
+
 */

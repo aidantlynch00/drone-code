@@ -9,7 +9,7 @@ private:
 	double loopTime;
 
 public:
-	BerryIMU(int accelReg, int gyroReg);
+	BerryIMU();
 	~BerryIMU();
 	double* readAccel(); //   m/sec^2 in x, y, z
 	double* readGyro(); // angular acceleration

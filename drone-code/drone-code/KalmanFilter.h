@@ -1,6 +1,6 @@
 #pragma once
 
-class kalmanFilter {
+class KalmanFilter {
 private:
 	double q_angle = .01;
 	double q_gyro = .0003;

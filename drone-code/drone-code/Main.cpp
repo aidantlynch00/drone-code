@@ -19,7 +19,7 @@ using namespace std;
 int main(void)
 {
 	wiringPiSetupGpio();
-	BerryIMU imu{0x6a, 0x1c};
+	BerryIMU imu{};
 	PPMRead ppmRead17{ 7 };
 	int x = 0;
 	while(x<1){

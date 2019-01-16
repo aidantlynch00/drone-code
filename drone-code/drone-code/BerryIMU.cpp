@@ -10,7 +10,7 @@
 int file; 
 int LSM9DS1 = 0;
 
-BerryIMU::BerryIMU(int accelReg, int gyroReg){
+BerryIMU::BerryIMU(){
 	detectIMU();
 	enableIMU();
 }
