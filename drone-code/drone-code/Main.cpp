@@ -22,11 +22,16 @@ int main(void)
 	BerryIMU imu{};
 	PPMRead ppmRead17{ 7 };
 	int x = 0;
+	double* gyro_out;
+	double* accel_out;
+	double* mag_out;
 	while(x<1){
 		system("clear");
-		double* gyro_out = imu.readGyro();
-		double* accel_out = imu.readAccel();
-		
+
+		gyro_out = imu.readGyro();
+		accel_out = imu.readAccel();
+		mag_out = imu.readMag();
+
 		double AccXangle = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
 		double AccYangle = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
 
@@ -53,14 +58,16 @@ int main(void)
 		cout << "RateY: " << rate_gyr_y << endl;
 		cout << "RateZ: " << rate_gyr_z << endl << endl;
 		
-		delete gyro_out;
-		delete accel_out;
+		cout << "Mag Raw X: " << mag_out[0] << endl << "Mag Raw Y: " << mag_out[1] << endl << "Mag Raw Z: " << mag_out[2] << endl << endl;
 
-		
-		cout << "GPIO 7 Value: " << ppmRead17.discoverPeriod() << endl << endl;
+		//cout << "GPIO 7 Value: " << ppmRead17.discoverPeriod() << endl << endl;
 		//x++;
 		delay(50);
 	}
+
+	delete mag_out;
+	delete gyro_out;
+	delete accel_out;
 
 	return 0;
 }
