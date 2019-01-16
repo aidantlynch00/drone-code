@@ -51,7 +51,7 @@ double * BerryIMU::readMag() {
 		selectDevice(file, LSM9DS1_MAG_ADDRESS);
 		readBlock(0x80 | LSM9DS1_OUT_X_L_M, sizeof(block), block);
 	}
-	double *m = new double[3]
+	double *m = new double[3];
 	*m = (int16_t)(block[0] | block[1] << 8);
 	*(m + 1) = (int16_t)(block[2] | block[3] << 8);
 	*(m + 2) = (int16_t)(block[4] | block[5] << 8);
