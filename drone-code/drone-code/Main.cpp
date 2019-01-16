@@ -54,9 +54,7 @@ int main(void)
 		cout << "RateY: " << rate_gyr_y << endl;
 		cout << "RateZ: " << rate_gyr_z << endl << endl;
 		
-
-		printf("magRaw X %i    \tmagRaw Y %i \tMagRaw Z %i \n", mag_out[0], mag_out[1], mag_out[2]);
-
+		cout << "Mag Raw X: " << mag_out[0] << endl << "Mag Raw Y: " << mag_out[1] << endl << "Mag Raw Z: " << mag_out[2] << endl << endl;
 
 		delete mag_out;
 		delete gyro_out;
