@@ -5,6 +5,7 @@
 #include "math.h"
 #include <iostream>
 #include "PPMRead.h"
+#include "KalmanFilter.h"
 
 
 //link real-time library during execution with -lrt
@@ -25,7 +26,13 @@ int main(void)
 	double* gyro_out;
 	double* accel_out;
 	double* mag_out;
+
+	double startTime = 0;
+	double endTime = 0;
+	double dt = 0;
+
 	while(x<1){
+		dt = (endTime - startTime) / 1000000;
 		system("clear");
 
 		gyro_out = imu.readGyro();
@@ -45,6 +52,10 @@ int main(void)
 		double rate_gyr_y = (float)gyro_out[1] * 0.5;
 		double rate_gyr_z = (float)gyro_out[2] * 0.5;
 
+		KalmanFilter* filter = new KalmanFilter();
+		AccXangle = filter->kalmanFilterX(AccXangle, rate_gyr_x, dt);
+		AccYangle = filter->kalmanFilterY(AccYangle, rate_gyr_y, dt);
+
 		cout << "GX: " << gyro_out[0] << endl;
 		cout << "GY: " << gyro_out[1] << endl;
 		cout << "GZ: " << gyro_out[2] << endl;
@@ -60,9 +71,9 @@ int main(void)
 		
 		cout << "Mag Raw X: " << mag_out[0] << endl << "Mag Raw Y: " << mag_out[1] << endl << "Mag Raw Z: " << mag_out[2] << endl << endl;
 
-		//cout << "GPIO 7 Value: " << ppmRead17.discoverPeriod() << endl << endl;
-		//x++;
-		delay(50);
+		if (endTime - startTime < 1999) {
+			delayMicroseconds(1999 - (endTime - startTime));
+		}
 	}
 
 	delete mag_out;

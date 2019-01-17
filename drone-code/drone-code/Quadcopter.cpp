@@ -74,7 +74,7 @@ void Quadcopter::run() {
 	double dt;
 
 	while (flying) {
-		dt = endTime - startTime;
+		dt = (endTime - startTime) / 1000000;
 		startTime = micros();
 
 		//TODO: Use magnotemeter to help with yaw
@@ -85,10 +85,11 @@ void Quadcopter::run() {
 
 		ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
 		pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
+		//ya = ;
 
 		rv = (float)gyro_out[0] * 0.5; //rgx
 		pv = (float)gyro_out[1] * 0.5; //rgy
-		ya = (float)gyro_out[2] * 0.5; //rgz
+		yv = (float)gyro_out[2] * 0.5; //rgz
 
 		ra = filter->kalmanFilterX(ra, rv, dt);
 		pa = filter->kalmanFilterY(pa, pv, dt);
