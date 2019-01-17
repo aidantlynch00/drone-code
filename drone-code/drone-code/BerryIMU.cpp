@@ -55,6 +55,7 @@ double * BerryIMU::readMag() {
 	*m = (int16_t)(block[0] | block[1] << 8);
 	*(m + 1) = (int16_t)(block[2] | block[3] << 8);
 	*(m + 2) = (int16_t)(block[4] | block[5] << 8);
+	return m;
 }
 
 void BerryIMU::writeAccelReg(uint8_t reg, uint8_t value){
