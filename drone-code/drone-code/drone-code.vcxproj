@@ -85,6 +85,7 @@
     <ClInclude Include="PID.h" />
     <ClInclude Include="PPMRead.h" />
     <ClInclude Include="Quadcopter.h" />
+    <ClInclude Include="RC_Code.h" />
     <ClInclude Include="SerialValueReading.h" />
     <ClInclude Include="SoftPWM_GPIO.h" />
   </ItemGroup>

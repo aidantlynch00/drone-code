@@ -13,7 +13,6 @@ class PPMRead {
 	public:
 		PPMRead(int pin);
 		~PPMRead();
-		bool syncListener();
 		string valueReader();
 		int binaryToDeci(string value);
 		int finalValues();
