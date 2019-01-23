@@ -15,7 +15,7 @@ private:
 public:
 
 	double kalmanFilterX(double accAngle, double gyroRate, double dt) {
-		double  y, S;
+		double  y, s;
 		double k_0, k_1;
 
 
@@ -27,9 +27,9 @@ public:
 		xp_11 += q_gyro * dt;
 
 		y = accAngle - kf_angleX;
-		S = xp_00 + r_angle;
-		k_0 = xp_00 / S;
-		k_1 = xp_10 / S;
+		s = xp_00 + r_angle;
+		k_0 = xp_00 / s;
+		k_1 = xp_10 / s;
 
 		kf_angleX += k_0 * y;
 		x_bias += k_1 * y;

@@ -1,11 +1,14 @@
 #include <map>
 #include <string>
+#include <iostream>
 #include "math.h"
 #include "ESC.h"
 #include "Quadcopter.h"
 #include "PID.h"
 #include "BerryIMU.h"
 #include "KalmanFilter.h"
+
+using namespace std;
 
 Quadcopter::Quadcopter() {
 	//TODO: Replace pin numbers when hardware is connected
@@ -27,66 +30,55 @@ Quadcopter::~Quadcopter() {
 	delete imu;
 }
 
+
+
+void Quadcopter::print() {
+	system("clear");
+
+	cout << "Angle X: " << ra << endl;
+	cout << "Angle Y: " << pa << endl;
+	cout << "Angle Z: " << ya << endl << endl;
+
+	cout << "Rate X: " << rv << endl;
+	cout << "Rate Y: " << pv << endl;
+	cout << "Rate Z: " << yv << endl << endl;
+}
+
+
+
 void Quadcopter::run() {
 	bool flying = true;
 
 	//Pitch is rotating about the Y axis, Roll is rotating about the X axis, Yaw is rotating about the Z axis
 	
-	//Angle variables
-	double ra = 0;
-	double pa = 0;
-	double ya = 0;
-
-	//Angular velocity variables
-	double rv = 0;
-	double pv = 0;
-	double yv = 0;
-
-	//Filter
-	KalmanFilter* filter = new KalmanFilter();
-
-	//Roll, Pitch, Yaw PIDs
-	PID ra_pid{ 0, 0, 0 };
-	PID pa_pid{ 0, 0, 0 };
-	PID ya_pid{ 0, 0, 0 };
-
-	//Roll, Pitch, and Yaw angular velocity PID's
-	PID rv_pid{ 0, 0, 0 };
-	PID pv_pid{ 0, 0, 0 };
-	PID yv_pid{ 0, 0, 0 };
-
-	//Raw output arrays
-	double* accel_out;
-	double* gyro_out;
-
-	//PID output arrays
-	double* ra_pid_out;
-	double* pa_pid_out;
-	double* ya_pid_out;
-
-	double* rv_pid_out;
-	double* pv_pid_out;
-	double* yv_pid_out;
-	
-	//Time variables
-	double startTime = 0;
-	double endTime = 0;
-	double dt;
-
 	while (flying) {
 		dt = (endTime - startTime) / 1000000;
 		startTime = micros();
 
 		//TODO: Use magnotemeter to help with yaw
 
-		//Get values from accel and gyro
+		//Get values from accelerometer, gyroscope, and magnetometer
 		accel_out = imu->readAccel();
 		gyro_out = imu->readGyro();
+		mag_out = imu->readMag();
 
+		//accel calcs
 		ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
 		pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
-		//ya = ;
 
+		//mag calcs
+		double accXnorm = accel_out[0] / sqrt(accel_out[0] * accel_out[0] + accel_out[1] * accel_out[1] + accel_out[2] * accel_out[2]);
+		double accYnorm = accel_out[1] / sqrt(accel_out[0] * accel_out[0] + accel_out[1] * accel_out[1] + accel_out[2] * accel_out[2]);
+
+		double magXcomp = mag_out[0] * cos(asin(accXnorm)) + mag_out[2] * sin(pa);
+		double magYcomp = mag_out[0] * sin(asin(accYnorm / cos(pa)))*sin(asin(accXnorm)) + mag_out[1] * cos(asin(accYnorm / cos(pa))) - mag_out[2] * sin(asin(accYnorm / cos(pa)))*cos(asin(accXnorm));
+
+		magXcomp = *mag_out*cos(pa) + *(mag_out + 2)*sin(pa);
+		magYcomp = *mag_out*sin(ra)*sin(pa) + *(mag_out + 1)*cos(ra) - *(mag_out + 2)*sin(ra)*cos(pa);
+
+		ya = 180 * atan2(magYcomp, magXcomp) / M_PI;
+
+		//gyro calcs
 		rv = (float)gyro_out[0] * 0.5; //rgx
 		pv = (float)gyro_out[1] * 0.5; //rgy
 		yv = (float)gyro_out[2] * 0.5; //rgz
@@ -115,15 +107,20 @@ void Quadcopter::run() {
 		pa_pid_out = pa_pid.compute(pa, pa_target, dt);
 		ya_pid_out = ya_pid.compute(ya, ya_target, dt);
 
-		rv_pid_out = rv_pid.compute(rv, rv_target, dt);
-		pv_pid_out = pv_pid.compute(pv, pv_target, dt);
-		yv_pid_out = yv_pid.compute(yv, yv_target, dt);
+		//rv_pid_out = rv_pid.compute(rv, rv_target, dt);
+		//pv_pid_out = pv_pid.compute(pv, pv_target, dt);
+		//yv_pid_out = yv_pid.compute(yv, yv_target, dt);
 
 		//------Change Speed-------\\
 		
-		double z_pwm = /*hover_pwm + */zv_out;
+		//double z_pwm = /*hover_pwm + */zv_out;
+
+
+		print();
+
 
 		//--Loop time corrections--\\
+		
 		endTime = micros();
 		
 		if (endTime - startTime < 1999) {

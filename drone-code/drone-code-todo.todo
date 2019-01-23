@@ -3,9 +3,15 @@
 Coding the basics to control motors through GPIO pins
 ✔ Create a class that uses PWM output to control an ESC (only need one pin) @done(18-10-12 12:59)
 Quadcopter class:
-    ☐ Use magnetometer to calculate heading and improve yaw stabilization
+    ☐ Use magnetometer with tilt compensation to calculate yaw
     ✔ Clean up variable creation, pushing all inits outside of the fly loop @done(19-01-16 13:32)
     ☐ Combine magnotometer readings with rate_gyro_z in a kalman filter to eliminate noise
+    ☐ Fix Kalman filter (maybe recode)
+RC reading:
+    ☐ Research best way to read values (Serial, PPM, PWM)
+    ☐ Code a system to read values from the radio receiver
+    ☐ Translate those readings into usable values for the Quadcopter class
+
     
 
 
