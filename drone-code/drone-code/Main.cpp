@@ -26,6 +26,7 @@ int main(void)
 	//PPMRead ppmRead17{ 7 };
 
 	Quadcopter* quad = new Quadcopter();
+	quad->run();
 	
 	RC_Code rcCode{15};
 	return 0;

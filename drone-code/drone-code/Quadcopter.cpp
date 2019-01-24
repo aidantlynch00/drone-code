@@ -12,22 +12,41 @@ using namespace std;
 
 Quadcopter::Quadcopter() {
 	//TODO: Replace pin numbers when hardware is connected
+	imu = new BerryIMU{};
+
+	ra = 0;
+	pa = 0;
+	ya = 0;
+
+	rv = 0;
+	pv = 0;
+	yv = 0;
+
+	kalmanFilterX = new KalmanFilter();
+	kalmanFilterY = new KalmanFilter();
+	kalmanFilterZ = new KalmanFilter();
+
 	motors["FL"] = new ESC(1);
 	motors["FR"] = new ESC(1);
 	motors["BL"] = new ESC(1);
 	motors["BR"] = new ESC(1);
 
-	imu = new BerryIMU{};
+	startTime = 0;
+	endTime = 0;
 }
 
 Quadcopter::~Quadcopter() {
+	delete imu;
+
+	delete kalmanFilterX;
+	delete kalmanFilterY;
+	delete kalmanFilterZ;
+
 	delete motors["FL"];
 	delete motors["FR"];
 	delete motors["BL"];
 	delete motors["BR"];
 	motors.clear();
-
-	delete imu;
 }
 
 
@@ -85,7 +104,7 @@ void Quadcopter::run() {
 
 		ra = kalmanFilterX->compute(ra, rv, dt);
 		pa = kalmanFilterY->compute(pa, pv, dt);
-		//Kalman Filter Z??
+		ya = kalmanFilterZ->compute(ya, yv, dt);
 
 		//Convert angles to +/- 180
 		             ra -= 180;
