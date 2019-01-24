@@ -83,8 +83,8 @@ void Quadcopter::run() {
 		pv = (float)gyro_out[1] * 0.5; //rgy
 		yv = (float)gyro_out[2] * 0.5; //rgz
 
-		ra = filter->kalmanFilterX(ra, rv, dt);
-		pa = filter->kalmanFilterY(pa, pv, dt);
+		ra = kalmanFilterX->compute(ra, rv, dt);
+		pa = kalmanFilterY->compute(pa, pv, dt);
 		//Kalman Filter Z??
 
 		//Convert angles to +/- 180

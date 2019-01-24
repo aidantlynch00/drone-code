@@ -14,27 +14,28 @@ private:
 
 	//VALUES NEEDED FOR CALCULATIONS
 	//Angle variables
-	double ra = 0;
-	double pa = 0;
-	double ya = 0;
+	double ra;
+	double pa;
+	double ya;
 
 	//Angular velocity variables
-	double rv = 0;
-	double pv = 0;
-	double yv = 0;
+	double rv;
+	double pv;
+	double yv;
 
 	//Filter
-	KalmanFilter* filter = new KalmanFilter();
+	KalmanFilter* kalmanFilterX;
+	KalmanFilter* kalmanFilterY;
 
 	//Roll, Pitch, Yaw PIDs
-	PID ra_pid{ 0, 0, 0 };
-	PID pa_pid{ 0, 0, 0 };
-	PID ya_pid{ 0, 0, 0 };
+	PID ra_pid;
+	PID pa_pid;
+	PID ya_pid;
 
 	//Roll, Pitch, and Yaw angular velocity PID's
-	PID rv_pid{ 0, 0, 0 };
-	PID pv_pid{ 0, 0, 0 };
-	PID yv_pid{ 0, 0, 0 };
+	PID rv_pid;
+	PID pv_pid;
+	PID yv_pid;
 
 	//Raw output arrays
 	double* accel_out;
@@ -51,8 +52,8 @@ private:
 	double* yv_pid_out;
 
 	//Time variables
-	double startTime = 0;
-	double endTime = 0;
+	double startTime;
+	double endTime;
 	double dt;
 
 
