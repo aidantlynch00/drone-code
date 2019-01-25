@@ -30,6 +30,5 @@ int main(void)
 	
 	delete quad;
 
-	RC_Code rcCode{15};
 	return 0;
 }
