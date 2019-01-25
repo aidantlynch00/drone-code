@@ -28,6 +28,8 @@ int main(void)
 	Quadcopter* quad = new Quadcopter();
 	quad->run();
 	
+	delete quad;
+
 	RC_Code rcCode{15};
 	return 0;
 }
