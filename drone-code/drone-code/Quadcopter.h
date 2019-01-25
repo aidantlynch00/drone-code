@@ -11,6 +11,8 @@ using namespace std;
 class Quadcopter {
 
 private:
+	const double declination = 43.92 / 1000.0;
+
 	map<string, ESC*> motors;
 	BerryIMU* imu;
 

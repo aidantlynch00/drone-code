@@ -96,6 +96,10 @@ void Quadcopter::run() {
 		magYcomp = *mag_out*sin(ra)*sin(pa) + *(mag_out + 1)*cos(ra) - *(mag_out + 2)*sin(ra)*cos(pa);
 
 		ya = 180 * atan2(magYcomp, magXcomp) / M_PI;
+		ya += declination * (180 / M_PI);
+
+		if (ya > 360)
+			ya -= 360;
 
 		//gyro calcs
 		rv = (float)gyro_out[0] * 0.5; //rgx

@@ -8,7 +8,7 @@ class SoftPWM_GPIO : public GPIO {
 		int range;
 
 	public:
-		SoftPWM_GPIO(int bcm_pin, int range = 100);
+		SoftPWM_GPIO(int bcm_pin, int range);
 		~SoftPWM_GPIO();
 
 		int  getDuty();
