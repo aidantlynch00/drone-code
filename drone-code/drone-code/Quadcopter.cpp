@@ -151,8 +151,8 @@ void Quadcopter::run() {
 		
 		endTime = micros();
 		
-		if (endTime - startTime < 1999) {
-			delayMicroseconds(1999 - (endTime - startTime));
+		if (endTime - startTime < 80999) {
+			delayMicroseconds(80999 - (endTime - startTime));
 		}
 	}
 }
