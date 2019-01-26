@@ -80,7 +80,7 @@ void Quadcopter::print() {
 
 void Quadcopter::run() {
 	bool flying = true;
-	int buffer = 25;
+	int buffer = 50;
 	int low = 1000;
 	int high = 2000;
 
@@ -140,18 +140,8 @@ void Quadcopter::run() {
 
 		for (int channel = 0; channel < 4; channel++) {
 			rc_adj[channel] = map_value(rc_values[channel], low, high, 1100, 1900);
-			rc_adj[channel] /= 50;
-			rc_adj[channel] *= 50;
-			
-			/*
-			for (int i = low; i <= high; i += buffer * 2){
-				if (rc_adj[channel] > i - buffer && rc_adj[channel] <= i + buffer){
-					rc_adj[channel] = i;
-					break;
-				}
-			}
-			*/
-
+			rc_adj[channel] /= buffer;
+			rc_adj[channel] *= buffer;
 		}
 
 	
