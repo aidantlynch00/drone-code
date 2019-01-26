@@ -1,4 +1,4 @@
-#include "RC_Code.h"
+#include "RC.h"
 #include <iostream>
 #include <wiringPi.h>
 #include <wiringSerial.h>
