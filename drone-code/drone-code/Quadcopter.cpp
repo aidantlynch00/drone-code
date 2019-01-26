@@ -7,12 +7,14 @@
 #include "PID.h"
 #include "BerryIMU.h"
 #include "KalmanFilter.h"
+#include "RC_Code.h"
 
 using namespace std;
 
 Quadcopter::Quadcopter() {
 	//TODO: Replace pin numbers when hardware is connected
 	imu = new BerryIMU{};
+	rc_read = new RC_Code();
 
 	ra = 0;
 	pa = 0;
@@ -37,6 +39,7 @@ Quadcopter::Quadcopter() {
 
 Quadcopter::~Quadcopter() {
 	delete imu;
+	delete rc_read;
 
 	delete kalmanFilterX;
 	delete kalmanFilterY;
@@ -61,6 +64,8 @@ void Quadcopter::print() {
 	cout << "Rate X: " << rv << endl;
 	cout << "Rate Y: " << pv << endl;
 	cout << "Rate Z: " << yv << endl << endl;
+	
+	rc_read->read();
 }
 
 

@@ -5,6 +5,7 @@
 #include "BerryIMU.h"
 #include "PID.h"
 #include "KalmanFilter.h"
+#include "RC_Code.h"
 
 using namespace std;
 
@@ -15,6 +16,7 @@ private:
 
 	map<string, ESC*> motors;
 	BerryIMU* imu;
+	RC_Code* rc_read;
 
 	//VALUES NEEDED FOR CALCULATIONS
 	//Angle variables

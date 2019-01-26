@@ -11,7 +11,7 @@ using namespace std;
 
 class RC_Code {
 public:
-	RC_Code(int pin);
+	RC_Code();
 	~RC_Code();
 	void read(void);
 

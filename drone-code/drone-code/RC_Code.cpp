@@ -16,10 +16,10 @@
 #define RC_CH3  2
 #define RC_CH4  3
 
-#define RC_CH1_INPUT  15
-#define RC_CH2_INPUT  17
-#define RC_CH3_INPUT  18
-#define RC_CH4_INPUT  19
+#define RC_CH1_INPUT  4		//RUDDER
+#define RC_CH2_INPUT  17	//AILERON
+#define RC_CH3_INPUT  27	//ELEVATIONATOR
+#define RC_CH4_INPUT  22	//THROTHRLE
 
 using namespace std;
 
@@ -60,7 +60,7 @@ void calc_ch4()
     calc_input(RC_CH4, RC_CH4_INPUT);
 }
 
-RC_Code::RC_Code(int pin)
+RC_Code::RC_Code()
 {
     setup();
 }
@@ -92,7 +92,8 @@ void RC_Code::read()
 {
 	rc_read_values();
 
-	cout << "CH1: " << (rc_values[RC_CH1]) << "\t" << endl;
+	cout << "RUD: " << (rc_values[RC_CH1]) << "\tAIL: " << (rc_values[RC_CH2]) << 
+	"\tELE: " << (rc_values[RC_CH3]) << "\tTHR: " << (rc_values[RC_CH4]) << endl;
 }
 
 RC_Code::~RC_Code()
