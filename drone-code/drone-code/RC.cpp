@@ -8,7 +8,6 @@
 #include <string>
 #include "GPIO.h"
 
-#define SERIAL_PORT_SPEED 57600
 #define RC_NUM_CHANNELS  4
 
 #define RC_CH1  0
@@ -84,6 +83,7 @@ void RC::read() {
 }
 
 uint16_t* RC::getValues() {
+  read();
 	return rc_values;
 }
 

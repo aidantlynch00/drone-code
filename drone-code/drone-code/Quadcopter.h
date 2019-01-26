@@ -14,9 +14,6 @@ using namespace std;
 class Quadcopter {
 
 private:
-	thread rc_loop;
-	//thread quad_loop; if needed
-
 	const double declination = 43.92 / 1000.0;
 
 	map<string, ESC*> motors;
@@ -25,8 +22,8 @@ private:
 
 	//VALUES NEEDED FOR CALCULATIONS
 	//RC values
-	uint16_t* rc_raw;
-	uint16_t rc_values[3];
+	uint16_t* rc_values;
+	uint16_t* rc_adj;
 
 	//Angle variables
 	double ra;

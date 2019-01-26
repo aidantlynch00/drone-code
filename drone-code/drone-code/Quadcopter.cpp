@@ -17,10 +17,10 @@ double map_value(double value, double low1, double high1, double low2, double hi
 }
 
 Quadcopter::Quadcopter() {
-	rc_loop = thread(&RC::read, rc);
 
 	//TODO: Replace pin numbers when hardware is connected
 	imu = new BerryIMU{};
+	rc_adj = new uint16_t[3];
 
 	ra = 0;
 	pa = 0;
@@ -70,10 +70,10 @@ void Quadcopter::print() {
 	cout << "Rate Y: " << pv << endl;
 	cout << "Rate Z: " << yv << endl << endl;
 	
-	cout << "RUD: " << rc_values[0] << endl;
-	cout << "AIL: " << rc_values[1] << endl;
-	cout << "ELE: " << rc_values[2] << endl;
-	cout << "THR: " << rc_values[3] << endl << endl;
+	cout << "RUD: " << rc_adj[0] << endl;
+	cout << "AIL: " << rc_adj[1] << endl;
+	cout << "ELE: " << rc_adj[2] << endl;
+	cout << "THR: " << rc_adj[3] << endl << endl;
 }
 
 
@@ -135,24 +135,30 @@ void Quadcopter::run() {
 		delete gyro_out;
 
 		//----Collect RC Target----\\
-		
-		rc_raw = rc->getValues();
-
+	
+		rc_values = rc->getValues();
 
 		for (int channel = 0; channel < 4; channel++) {
-			//rc_values[channel] = map_value(rc_values[channel], low, high, 1100, 1900);
-			for (int i = low; i <= high; i += buffer * 2)
-				if (rc_raw[channel] > i - buffer || rc_raw[channel] <= i + buffer){
-					rc_values[channel] = i;
+			rc_adj[channel] = map_value(rc_values[channel], low, high, 1100, 1900);
+			rc_adj[channel] /= 50;
+			rc_adj[channel] *= 50;
+			
+			/*
+			for (int i = low; i <= high; i += buffer * 2){
+				if (rc_adj[channel] > i - buffer && rc_adj[channel] <= i + buffer){
+					rc_adj[channel] = i;
 					break;
 				}
+			}
+			*/
+
 		}
 
 	
 
-		double ra_target = map_value(rc_values[0], 1000, 2000, -45, 45);
-		double pa_target = map_value(rc_values[0], 1000, 2000, -45, 45);;
-		double ya_target = map_value(rc_values[0], 1000, 2000, -45, 45);;
+		double ra_target = 0;//map_value(rc_values[0], 1000, 2000, -45, 45);
+		double pa_target = 0;//map_value(rc_values[0], 1000, 2000, -45, 45);;
+		double ya_target = 0;//map_value(rc_values[0], 1000, 2000, -45, 45);;
 
 		//----------PID's----------\\
 
