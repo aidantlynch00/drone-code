@@ -70,10 +70,10 @@ void Quadcopter::print() {
 	cout << "Rate Y: " << pv << endl;
 	cout << "Rate Z: " << yv << endl << endl;
 	
-	cout << "CH1: " << rc_values[0] << endl;
-	cout << "CH2: " << rc_values[1] << endl;
-	cout << "CH3: " << rc_values[2] << endl;
-	cout << "CH4: " << rc_values[3] << endl << endl;
+	cout << "RUD: " << rc_values[0] << endl;
+	cout << "AIL: " << rc_values[1] << endl;
+	cout << "ELE: " << rc_values[2] << endl;
+	cout << "THR: " << rc_values[3] << endl << endl;
 }
 
 
@@ -142,8 +142,10 @@ void Quadcopter::run() {
 		for (int channel = 0; channel < 4; channel++) {
 			//rc_values[channel] = map_value(rc_values[channel], low, high, 1100, 1900);
 			for (int i = low; i <= high; i += buffer * 2)
-				if (rc_values[channel] > i - buffer || rc_values[channel] <= i + buffer)
+				if (rc_values[channel] > i - buffer || rc_values[channel] <= i + buffer){
 					rc_values[channel] = i;
+					break;
+				}
 		}
 
 	
