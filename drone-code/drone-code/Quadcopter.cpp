@@ -46,10 +46,10 @@ Quadcopter::Quadcopter() {
 	kalmanFilterY = new KalmanFilter();
 	kalmanFilterZ = new KalmanFilter();
 
-	motors["FL"] = new ESC(1);
-	motors["FR"] = new ESC(1);
-	motors["BL"] = new ESC(1);
-	motors["BR"] = new ESC(1);
+	motors["FL"] = new ESC(6);
+	motors["FR"] = new ESC(13);
+	motors["BL"] = new ESC(19);
+	motors["BR"] = new ESC(26);
 
 	startTime = 0;
 	endTime = 0;
@@ -72,8 +72,6 @@ Quadcopter::~Quadcopter() {
 
 
 void Quadcopter::print() {
-	system("clear");
-
 	cout << "Angle X: " << ra << endl;
 	cout << "Angle Y: " << pa << endl;
 	//cout << "Angle Z: " << ya << endl << endl;
@@ -92,7 +90,7 @@ void Quadcopter::print() {
 	cout << "BL: " << motors["BL"]->getPWM() << endl;
 	cout << "BR: " << motors["BR"]->getPWM() << endl << endl;
 	
-	cout << "DT: " << dt * 1000000 << endl;
+	cout << "DT: " << dt * 1000000 << endl << endl << endl << endl << endl << endl << endl << endl;
 }
 
 
@@ -106,86 +104,96 @@ void Quadcopter::run() {
 
 	while (flying) {
 
+		dt = (endTime - startTime) / 1000000.0;
+		startTime = micros();
+		count++;
+			
 		//----Collect RC Target----\\
 	
-		rc_values = rc->getValues();
+		if(count == 16){
+			rc_values = rc->getValues();
 
-		for (int channel = 0; channel < 4; channel++) {
-			//rc_adj[channel] = map_value(rc_values[channel], low, high, 1100, 1900);
-			rc_adj[channel] = rc_values[channel];
-			rc_adj[channel] /= buffer;
-			rc_adj[channel] *= buffer;
-			rc_adj[channel] = constrain(rc_adj[channel], 1000, 2000);
-		}
-
-		count = 0;
-
-		while (true) {
-			dt = (endTime - startTime) / 1000000.0;
-			startTime = micros();
-			count++;
-
-			//Get values from accelerometer, gyroscope, and magnetometer
-			accel_out = imu->readAccel();
-			gyro_out = imu->readGyro();
-			//mag_out = imu->readMag();
-
-			//Gyro Calcs
-			rv = (float)gyro_out[0] * 0.07; //rgx
-			pv = (float)gyro_out[1] * 0.07; //rgy
-			yv = (float)gyro_out[2] * 0.07; //rgz
-
-			//Accel Calcs
-			ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
-			pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
-
-			//Complementary Filter
-			//ra = .98 * (ra + rv * dt) + .02 * accel_ra;
-			//pa = .98 * (pa + pv * dt) + .02 * accel_pa;
-
-			//Convert angles to +/- 180
-			//ra -= 180;
-			//if (pa > 90) pa -= 270;
-			//else         pa += 90;
-			if (ra > 180)		
-				ra -= 360;
-
-			//delete accel_out;
-			//delete gyro_out;
-
-			double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
-			double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
-			double yv_target = map_value(rc_adj[RUD], 1000, 2000, -180, 180);
-			double lift = constrain(rc_adj[ELE], 1100, 1900);
-
-			//----------PID's----------\\
-			
-			if (lift > 1100) {
-				ra_pid_out = ra_pid.compute(ra, ra_target, dt);
-				pa_pid_out = pa_pid.compute(pa, pa_target, dt);
-				yv_pid_out = ya_pid.compute(yv, yv_target, dt);
+			for (int channel = 0; channel < 4; channel++) {
+				//rc_adj[channel] = map_value(rc_values[channel], low, high, 1100, 1900);
+				rc_adj[channel] = rc_values[channel];
+				rc_adj[channel] /= buffer;
+				rc_adj[channel] *= buffer;
+				rc_adj[channel] = constrain(rc_adj[channel], 1000, 2000);
 			}
-
-			//------Change Speed-------\\
-
-			motors["FL"]->setPWM(constrain(lift + ra_pid_out + pa_pid_out - yv_pid_out, 1100, 2000));
-			motors["FR"]->setPWM(constrain(lift - ra_pid_out + pa_pid_out + yv_pid_out, 1100, 2000));
-			motors["BL"]->setPWM(constrain(lift + ra_pid_out - pa_pid_out - yv_pid_out, 1100, 2000));
-			motors["BR"]->setPWM(constrain(lift - ra_pid_out - pa_pid_out - yv_pid_out, 1100, 2000));
-
+			
+			count = 0;
 			print();
-
-			//--Loop time corrections--\\
-
-			if (micros() - startTime < 13000) {
-				delayMicroseconds(13000 - (endTime - startTime + 30));
-			}
-
-			endTime = micros();
-			
-			if (count == 5)
-				break;
 		}
+
+		//Get values from accelerometer, gyroscope, and magnetometer
+		accel_out = imu->readAccel();
+		gyro_out = imu->readGyro();
+		//mag_out = imu->readMag();
+
+		//Gyro Calcs
+		rv = (float)gyro_out[0] * 0.07; //rgx
+		pv = (float)gyro_out[1] * 0.07; //rgy
+		yv = (float)gyro_out[2] * 0.07; //rgz
+
+		//Accel Calcs
+		ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
+		pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
+
+		//Complementary Filter
+		//ra = .98 * (ra + rv * dt) + .02 * accel_ra;
+		//pa = .98 * (pa + pv * dt) + .02 * accel_pa;
+
+		//Convert angles to +/- 180
+		//ra -= 180;
+		//if (pa > 90) pa -= 270;
+		//else         pa += 90;
+		if (ra > 180)		
+			ra -= 360;
+		if(pa >= 270)
+			pa -= 450;
+		else
+			pa -= 90;
+		//delete accel_out;
+		//delete gyro_out;
+
+		double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
+		double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
+		double yv_target = map_value(rc_adj[RUD], 1000, 2000, -180, 180);
+		double lift = constrain(rc_adj[ELE], 1100, 1900);
+
+		//----------PID's----------\\
+			
+		ra_pid_out = ra_pid.compute(ra, ra_target, dt);
+		pa_pid_out = pa_pid.compute(pa, pa_target, dt);
+		yv_pid_out = yv_pid.compute(yv, yv_target, dt);
+
+		//------Change Speed-------\\
+		
+		int fl = lift + ra_pid_out + pa_pid_out - yv_pid_out;
+		int fr = lift - ra_pid_out + pa_pid_out + yv_pid_out;
+		int bl = lift + ra_pid_out - pa_pid_out + yv_pid_out;
+		int br = lift - ra_pid_out - pa_pid_out - yv_pid_out;
+		
+		//cout << "FL:::" << fl << endl;
+		fl = constrain(fl, 1000, 2000);
+		fr = constrain(fr, 1000, 2000);
+		bl = constrain(bl, 1000, 2000);
+		br = constrain(br, 1000, 2000);
+
+		motors["FL"]->setPWM(fl);
+		motors["FR"]->setPWM(fr);
+		motors["BL"]->setPWM(bl);
+		motors["BR"]->setPWM(br);
+
+		//--Loop time corrections--\\
+		
+		endTime = micros();
+
+		if (endTime - startTime < 4000) {
+			delayMicroseconds(4000 - (endTime - startTime));
+		}
+
+		endTime = micros();
 	}
 }
 

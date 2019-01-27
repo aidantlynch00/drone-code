@@ -16,7 +16,8 @@ double PID::error(double input, double target) {
 double PID::compute(double input, double target, double dt) {
 	double err = error(input, target);
 	double p_error = err;
-	i_error += .5 * (err + previous_error) * dt;
+	//i_error += .5 * (err + previous_error) * dt;
+	i_error += err * dt;
 	double d_error = (err - previous_error) / dt;
 
 	double p_output = kp * p_error;
