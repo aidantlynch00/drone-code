@@ -22,9 +22,9 @@
 
 using namespace std;
 
-uint16_t rc_values[RC_NUM_CHANNELS];
+uint32_t rc_values[RC_NUM_CHANNELS];
 uint32_t rc_start[RC_NUM_CHANNELS];
-volatile uint16_t rc_shared[RC_NUM_CHANNELS];
+volatile uint32_t rc_shared[RC_NUM_CHANNELS];
 
 void calc_input(int channel, int pin)
 {
@@ -34,7 +34,7 @@ void calc_input(int channel, int pin)
     } 
     else 
     {
-        uint16_t rc_compare = (uint16_t)(micros() - rc_start[channel]);
+        uint32_t rc_compare = (uint32_t)(micros() - rc_start[channel]);
         rc_shared[channel] = rc_compare;
     }
 }
@@ -82,7 +82,7 @@ void RC::read() {
 	memcpy(rc_values, (const void *)rc_shared, sizeof(rc_shared));
 }
 
-uint16_t* RC::getValues() {
+uint32_t* RC::getValues() {
   read();
 	return rc_values;
 }

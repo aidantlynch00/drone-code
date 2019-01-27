@@ -22,8 +22,8 @@ private:
 
 	//VALUES NEEDED FOR CALCULATIONS
 	//RC values
-	uint16_t* rc_values;
-	uint16_t* rc_adj;
+	uint32_t* rc_values;
+	uint32_t* rc_adj;
 
 	//Angle variables
 	double ra;
@@ -63,8 +63,8 @@ private:
 	double yv_pid_out;
 
 	//Time variables
-	double startTime;
-	double endTime;
+	uint32_t startTime;
+	uint32_t endTime;
 	double dt;
 
 

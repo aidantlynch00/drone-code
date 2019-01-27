@@ -32,7 +32,7 @@ double constrain(double value, double min, double max) {
 Quadcopter::Quadcopter() {
 	//TODO: Replace pin numbers when hardware is connected
 	imu = new BerryIMU{};
-	rc_adj = new uint16_t[3];
+	rc_adj = new uint32_t[3];
 
 	ra = 0;
 	pa = 0;
@@ -91,6 +91,8 @@ void Quadcopter::print() {
 	cout << "FR: " << motors["FR"]->getPWM() << endl;
 	cout << "BL: " << motors["BL"]->getPWM() << endl;
 	cout << "BR: " << motors["BR"]->getPWM() << endl << endl;
+	
+	cout << "DT: " << dt * 1000000 << endl;
 }
 
 
@@ -102,7 +104,7 @@ void Quadcopter::run() {
 	//Pitch is rotating about the Y axis, Roll is rotating about the X axis, Yaw is rotating about the Z axis
 
 	while (flying) {
-		dt = (endTime - startTime) / 1000000;
+		dt = (endTime - startTime) / 1000000.0;
 		startTime = micros();
 
 		//Get values from accelerometer, gyroscope, and magnetometer
@@ -116,17 +118,18 @@ void Quadcopter::run() {
 		yv = (float)gyro_out[2] * 0.07; //rgz
 
 		//Accel Calcs
-		accel_ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
-		accel_pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
+		ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
+		pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
 
 		//Complementary Filter
-		ra = .98 * (ra + rv * dt) + .02 * accel_ra;
-		pa = .98 * (pa + pv * dt) + .02 * accel_pa;
+		//ra = .98 * (ra + rv * dt) + .02 * accel_ra;
+		//pa = .98 * (pa + pv * dt) + .02 * accel_pa;
 
 		//Convert angles to +/- 180
-		ra -= 180;
-		if (pa > 90) pa -= 270;
-		else         pa += 90;
+		//ra -= 180;
+		//if (pa > 90) pa -= 270;
+		//else         pa += 90;
+		if (ra>180)		ra -= 360;
 
 		//delete accel_out;
 		//delete gyro_out;
@@ -140,6 +143,7 @@ void Quadcopter::run() {
 			rc_adj[channel] = rc_values[channel];
 			rc_adj[channel] /= buffer;
 			rc_adj[channel] *= buffer;
+			rc_adj[channel] = constrain(rc_adj[channel], 1000, 2000);
 		}
 
 		double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
@@ -168,9 +172,11 @@ void Quadcopter::run() {
 		
 		endTime = micros();
 
-		if (endTime - startTime < 80999) {
-			delayMicroseconds(80999 - (endTime - startTime));
+		if (endTime - startTime < 65000) {
+			delayMicroseconds(65000 - (endTime - startTime + 30));
 		}
+		
+		endTime = micros();
 	}
 }
 

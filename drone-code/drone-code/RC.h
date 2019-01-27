@@ -14,7 +14,7 @@ public:
 	RC();
 	//~RC();
 	void read(void);
-	uint16_t* getValues();
+	uint32_t* getValues();
 
 private:
 	int pin;
