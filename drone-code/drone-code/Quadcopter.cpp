@@ -11,12 +11,11 @@
 
 using namespace std;
 
-Quadcopter::Quadcopter() {
-<<<<<<< HEAD
-=======
-	rc_loop = new thread(rc->read);
->>>>>>> d9d0dc3ed3b7d9716ba5bda3c3581b670e3bb79b
+double map_value(double value, double low1, double high1, double low2, double high2){
+	return low2 + (high2 - low2) * (( value - low1) / (high1 - low1));
+}
 
+Quadcopter::Quadcopter() {
 	//TODO: Replace pin numbers when hardware is connected
 	imu = new BerryIMU{};
 	rc_adj = new uint16_t[3];
@@ -68,31 +67,20 @@ void Quadcopter::print() {
 	cout << "Rate X: " << rv << endl;
 	cout << "Rate Y: " << pv << endl;
 	cout << "Rate Z: " << yv << endl << endl;
-<<<<<<< HEAD
 	
 	cout << "RUD: " << rc_adj[0] << endl;
 	cout << "AIL: " << rc_adj[1] << endl;
 	cout << "ELE: " << rc_adj[2] << endl;
 	cout << "THR: " << rc_adj[3] << endl << endl;
-=======
-
-	cout << "CH1: " << rc_values[0] << endl;
-	cout << "CH2: " << rc_values[1] << endl;
-	cout << "CH3: " << rc_values[2] << endl;
-	cout << "CH4: " << rc_values[3] << endl << endl;
->>>>>>> d9d0dc3ed3b7d9716ba5bda3c3581b670e3bb79b
 }
 
 
 
 void Quadcopter::run() {
 	bool flying = true;
-<<<<<<< HEAD
 	int buffer = 50;
 	int low = 1000;
 	int high = 2000;
-=======
->>>>>>> d9d0dc3ed3b7d9716ba5bda3c3581b670e3bb79b
 
 	//Pitch is rotating about the Y axis, Roll is rotating about the X axis, Yaw is rotating about the Z axis
 
@@ -132,9 +120,9 @@ void Quadcopter::run() {
 		pv = (float)gyro_out[1] * 0.5; //rgy
 		yv = (float)gyro_out[2] * 0.5; //rgz
 
-		ra = kalmanFilterX->compute(ra, rv, dt);
-		pa = kalmanFilterY->compute(pa, pv, dt);
-		ya = kalmanFilterZ->compute(ya, yv, dt);
+		//ra = kalmanFilterX->compute(ra, rv, dt);
+		//pa = kalmanFilterY->compute(pa, pv, dt);
+		//ya = kalmanFilterZ->compute(ya, yv, dt);
 
 		//Convert angles to +/- 180
 		ra -= 180;
