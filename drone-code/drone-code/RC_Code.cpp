@@ -83,18 +83,7 @@ void RC_Code::setup() {
 
 
 void RC_Code::rc_read_values() {
-	//noInterrupts();
-	//system("/usr/local/bin/gpio edge 4 none");
-	//system("/usr/local/bin/gpio edge 17 none");
-	//system("/usr/local/bin/gpio edge 27 none");
-	//system("/usr/local/bin/gpio edge 22 none");
-
 	memcpy(rc_values, (const void *)rc_shared, sizeof(rc_shared));
-	//interrupts();
-	//system("/usr/local/bin/gpio edge 4 both");
-	//system("/usr/local/bin/gpio edge 17 both");
-	//system("/usr/local/bin/gpio edge 27 both");
-	//system("/usr/local/bin/gpio edge 22 both");
 }
 
 void RC_Code::read()
