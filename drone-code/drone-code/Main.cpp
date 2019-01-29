@@ -4,9 +4,8 @@
 #include "BerryIMU.h"
 #include "math.h"
 #include <iostream>
-#include "PPMRead.h"
 #include "KalmanFilter.h"
-#include "RC_Code.h"
+#include "RC.h"
 #include "Quadcopter.h"
 
 
@@ -22,8 +21,7 @@ using namespace std;
 int main(void)
 {
 	wiringPiSetupGpio();
-	BerryIMU imu{};
-	//PPMRead ppmRead17{ 7 };
+	piHiPri(99);
 
 	Quadcopter* quad = new Quadcopter();
 	quad->run();

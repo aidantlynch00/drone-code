@@ -64,7 +64,7 @@ RC_Code::RC_Code()
 {
     setup();
 }
-//FIX
+
 void RC_Code::setup() {
   //Serial.begin(SERIAL_PORT_SPEED);
 
@@ -96,6 +96,3 @@ void RC_Code::read()
 	"\tELE: " << (rc_values[RC_CH3]) << "\tTHR: " << (rc_values[RC_CH4]) << endl;
 }
 
-RC_Code::~RC_Code()
-{
-}
