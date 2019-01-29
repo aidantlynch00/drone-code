@@ -16,7 +16,6 @@ private:
 
 	map<string, ESC*> motors;
 	BerryIMU* imu;
-	RC_Code* rc_read;
 
 	//VALUES NEEDED FOR CALCULATIONS
 	//Angle variables

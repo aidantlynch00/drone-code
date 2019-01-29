@@ -83,9 +83,7 @@ void RC_Code::setup() {
 
 
 void RC_Code::rc_read_values() {
-	//noInterrupts();
 	memcpy(rc_values, (const void *)rc_shared, sizeof(rc_shared));
-	//interrupts();
 }
 
 void RC_Code::read()

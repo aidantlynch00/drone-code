@@ -14,7 +14,6 @@ using namespace std;
 Quadcopter::Quadcopter() {
 	//TODO: Replace pin numbers when hardware is connected
 	imu = new BerryIMU{};
-	rc_read = new RC_Code();
 
 	ra = 0;
 	pa = 0;
@@ -39,7 +38,6 @@ Quadcopter::Quadcopter() {
 
 Quadcopter::~Quadcopter() {
 	delete imu;
-	delete rc_read;
 
 	delete kalmanFilterX;
 	delete kalmanFilterY;
@@ -65,7 +63,6 @@ void Quadcopter::print() {
 	cout << "Rate Y: " << pv << endl;
 	cout << "Rate Z: " << yv << endl << endl;
 	
-	rc_read->read();
 }
 
 
@@ -151,8 +148,8 @@ void Quadcopter::run() {
 		
 		endTime = micros();
 		
-		if (endTime - startTime < 1999) {
-			delayMicroseconds(1999 - (endTime - startTime));
+		if (endTime - startTime < 80999) {
+			delayMicroseconds(80999 - (endTime - startTime));
 		}
 	}
 }
