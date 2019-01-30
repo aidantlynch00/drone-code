@@ -1,23 +1,32 @@
 #pragma once
 #include <map>
 #include <string>
+#include <thread>
 #include "ESC.h"
 #include "BerryIMU.h"
 #include "PID.h"
 #include "KalmanFilter.h"
 #include "RC.h"
+#include <cmath>
 
 using namespace std;
 
 class Quadcopter {
 
 private:
+	thread* rc_loop;
+	//thread quad_loop; if needed
+
 	const double declination = 43.92 / 1000.0;
 
 	map<string, ESC*> motors;
 	BerryIMU* imu;
+	RC* rc = new RC();
 
 	//VALUES NEEDED FOR CALCULATIONS
+	//RC values
+	uint16_t* rc_values;
+
 	//Angle variables
 	double ra;
 	double pa;

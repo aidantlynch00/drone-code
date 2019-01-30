@@ -19,28 +19,12 @@
 
 using namespace std;
 
-PI_THREAD(RC)
-{
-	RC_Code* rc = new RC_Code();
-
-	while (true) {
-		rc->read();
-	}
-
-	delete rc;
-}
-
 int main(void)
 {
 	wiringPiSetupGpio();
 	piHiPri(99);
 
-	Quadcopter* quad = new Quadcopter();
-
-	int rc = piThreadCreate(RC);
-	if (rc != 0)
-		printf("RC FAIL");
-	
+	Quadcopter* quad = new Quadcopter();	
 	quad->run();
 
 	delete quad;

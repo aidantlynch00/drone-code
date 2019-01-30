@@ -12,6 +12,8 @@
 using namespace std;
 
 Quadcopter::Quadcopter() {
+	rc_loop = new thread(rc->read);
+
 	//TODO: Replace pin numbers when hardware is connected
 	imu = new BerryIMU{};
 
@@ -63,6 +65,10 @@ void Quadcopter::print() {
 	cout << "Rate Y: " << pv << endl;
 	cout << "Rate Z: " << yv << endl << endl;
 	
+	cout << "CH1: " << rc_values[0] << endl;
+	cout << "CH2: " << rc_values[1] << endl;
+	cout << "CH3: " << rc_values[2] << endl;
+	cout << "CH4: " << rc_values[3] << endl << endl;
 }
 
 
@@ -122,6 +128,8 @@ void Quadcopter::run() {
 
 		//----Collect RC Target----\\
 		
+		rc_values = rc->getValues();
+
 		double ra_target = 0;
 		double pa_target = 0;
 		double ya_target = 0;

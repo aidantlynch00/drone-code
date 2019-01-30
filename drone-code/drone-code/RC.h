@@ -9,20 +9,14 @@
 
 using namespace std;
 
-class RC_Code {
+class RC {
 public:
-	RC_Code();
-	~RC_Code();
+	RC();
+	//~RC();
 	void read(void);
+	uint16_t* getValues();
 
 private:
 	int pin;
-	//void calc_input(int channel, int pin);
 	void setup();
-	void rc_read_values();
-	//void calc_ch1();
-	//void calc_ch2();
-	//void calc_ch3();
-	//void calc_ch4();
-
 };

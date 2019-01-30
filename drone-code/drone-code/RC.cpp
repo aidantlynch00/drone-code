@@ -60,12 +60,12 @@ void calc_ch4()
     calc_input(RC_CH4, RC_CH4_INPUT);
 }
 
-RC_Code::RC_Code()
+RC::RC()
 {
     setup();
 }
 
-void RC_Code::setup() {
+void RC::setup() {
   //Serial.begin(SERIAL_PORT_SPEED);
 
   pinMode(RC_CH1_INPUT, INPUT);
@@ -79,18 +79,12 @@ void RC_Code::setup() {
   wiringPiISR(RC_CH4_INPUT, INT_EDGE_BOTH, &calc_ch4);
 }
 
-
-
-
-void RC_Code::rc_read_values() {
+void RC::read() {
 	memcpy(rc_values, (const void *)rc_shared, sizeof(rc_shared));
 }
 
-void RC_Code::read()
-{
-	rc_read_values();
-
-	cout << "RUD: " << (rc_values[RC_CH1]) << "\tAIL: " << (rc_values[RC_CH2]) << 
-	"\tELE: " << (rc_values[RC_CH3]) << "\tTHR: " << (rc_values[RC_CH4]) << endl;
+uint16_t* RC::getValues() {
+	return rc_values;
 }
+
 
