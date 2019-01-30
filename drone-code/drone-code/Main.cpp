@@ -18,32 +18,31 @@
 // which uses gpio export for setup for wiringPiSetupSys
 
 using namespace std;
+
+PI_THREAD(RC)
+{
+	RC_Code* rc = new RC_Code();
+
+	while (true) {
+		rc->read();
+	}
+
+	delete rc;
+}
+
 int main(void)
 {
 	wiringPiSetupGpio();
 	piHiPri(99);
 
+	Quadcopter* quad = new Quadcopter();
+
 	int rc = piThreadCreate(RC);
 	if (rc != 0)
 		printf("RC FAIL");
-
-	int quad = piThreadCreate(QUAD);
-	if (quad != 0)
-		printf("QUAD FAIL");
-
-	return 0;
-}
-
-PI_THREAD(RC)
-{
-	Quadcopter* quad = new Quadcopter();
+	
 	quad->run();
-	delete quad;
-}
 
-PI_THREAD(QUAD)
-{
-	RC_Code* rc = new RC_Code();
-	rc->read();
-	delete rc;
+	delete quad;
+	return 0;
 }
