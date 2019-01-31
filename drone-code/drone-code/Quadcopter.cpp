@@ -11,8 +11,13 @@
 
 using namespace std;
 
+//Non-member function used for value mapping
+double map_value(double value, double low1, double high1, double low2, double high2) {
+	return low2 + (high2 - low2) * ((value - low1) / (high1 - low1));
+}
+
 Quadcopter::Quadcopter() {
-	rc_loop = new thread(rc->read);
+	rc_loop = thread(&RC::read, rc);
 
 	//TODO: Replace pin numbers when hardware is connected
 	imu = new BerryIMU{};
@@ -114,9 +119,9 @@ void Quadcopter::run() {
 		pv = (float)gyro_out[1] * 0.5; //rgy
 		yv = (float)gyro_out[2] * 0.5; //rgz
 
-		ra = kalmanFilterX->compute(ra, rv, dt);
-		pa = kalmanFilterY->compute(pa, pv, dt);
-		ya = kalmanFilterZ->compute(ya, yv, dt);
+		//ra = kalmanFilterX->compute(ra, rv, dt);
+		//pa = kalmanFilterY->compute(pa, pv, dt);
+		//ya = kalmanFilterZ->compute(ya, yv, dt);
 
 		//Convert angles to +/- 180
 		             ra -= 180;
@@ -130,9 +135,9 @@ void Quadcopter::run() {
 		
 		rc_values = rc->getValues();
 
-		double ra_target = 0;
-		double pa_target = 0;
-		double ya_target = 0;
+		double ra_target = map_value(rc_values[0], 1000, 2000, -45, 45);
+		double pa_target = map_value(rc_values[0], 1000, 2000, -45, 45);;
+		double ya_target = map_value(rc_values[0], 1000, 2000, -45, 45);;
 
 		//----------PID's----------\\
 

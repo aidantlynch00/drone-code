@@ -14,7 +14,7 @@ using namespace std;
 class Quadcopter {
 
 private:
-	thread* rc_loop;
+	thread rc_loop;
 	//thread quad_loop; if needed
 
 	const double declination = 43.92 / 1000.0;
