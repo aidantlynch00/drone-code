@@ -136,13 +136,13 @@ void Quadcopter::run() {
 
 		//----Collect RC Target----\\
 		
-		rc_values = rc->getValues();
+		rc_raw = rc->getValues();
 
 
 		for (int channel = 0; channel < 4; channel++) {
 			//rc_values[channel] = map_value(rc_values[channel], low, high, 1100, 1900);
 			for (int i = low; i <= high; i += buffer * 2)
-				if (rc_values[channel] > i - buffer || rc_values[channel] <= i + buffer){
+				if (rc_raw[channel] > i - buffer || rc_raw[channel] <= i + buffer){
 					rc_values[channel] = i;
 					break;
 				}

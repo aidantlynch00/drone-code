@@ -25,7 +25,8 @@ private:
 
 	//VALUES NEEDED FOR CALCULATIONS
 	//RC values
-	uint16_t* rc_values;
+	uint16_t* rc_raw;
+	uint16_t rc_values[3];
 
 	//Angle variables
 	double ra;
