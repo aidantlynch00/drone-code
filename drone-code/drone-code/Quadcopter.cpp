@@ -11,13 +11,8 @@
 
 using namespace std;
 
-//Non-member function used for value mapping
-double map_value(double value, double low1, double high1, double low2, double high2) {
-	return low2 + (high2 - low2) * ((value - low1) / (high1 - low1));
-}
-
 Quadcopter::Quadcopter() {
-	rc_loop = thread(&RC::read, rc);
+	rc_loop = new thread(rc->read);
 
 	//TODO: Replace pin numbers when hardware is connected
 	imu = new BerryIMU{};
@@ -69,23 +64,20 @@ void Quadcopter::print() {
 	cout << "Rate X: " << rv << endl;
 	cout << "Rate Y: " << pv << endl;
 	cout << "Rate Z: " << yv << endl << endl;
-	
-	cout << "RUD: " << rc_values[0] << endl;
-	cout << "AIL: " << rc_values[1] << endl;
-	cout << "ELE: " << rc_values[2] << endl;
-	cout << "THR: " << rc_values[3] << endl << endl;
+
+	cout << "CH1: " << rc_values[0] << endl;
+	cout << "CH2: " << rc_values[1] << endl;
+	cout << "CH3: " << rc_values[2] << endl;
+	cout << "CH4: " << rc_values[3] << endl << endl;
 }
 
 
 
 void Quadcopter::run() {
 	bool flying = true;
-	int buffer = 25;
-	int low = 1000;
-	int high = 2000;
 
 	//Pitch is rotating about the Y axis, Roll is rotating about the X axis, Yaw is rotating about the Z axis
-	
+
 	while (flying) {
 		dt = (endTime - startTime) / 1000000;
 		startTime = micros();
@@ -122,40 +114,27 @@ void Quadcopter::run() {
 		pv = (float)gyro_out[1] * 0.5; //rgy
 		yv = (float)gyro_out[2] * 0.5; //rgz
 
-		//ra = kalmanFilterX->compute(ra, rv, dt);
-		//pa = kalmanFilterY->compute(pa, pv, dt);
-		//ya = kalmanFilterZ->compute(ya, yv, dt);
+		ra = kalmanFilterX->compute(ra, rv, dt);
+		pa = kalmanFilterY->compute(pa, pv, dt);
+		ya = kalmanFilterZ->compute(ya, yv, dt);
 
 		//Convert angles to +/- 180
-		             ra -= 180;
+		ra -= 180;
 		if (pa > 90) pa -= 270;
-		else         pa +=  90;
+		else         pa += 90;
 
 		delete accel_out;
 		delete gyro_out;
 
 		//----Collect RC Target----\\
 		
-		rc_raw = rc->getValues();
+		rc_values = rc->getValues();
 
-
-		for (int channel = 0; channel < 4; channel++) {
-			//rc_values[channel] = map_value(rc_values[channel], low, high, 1100, 1900);
-			for (int i = low; i <= high; i += buffer * 2)
-				if (rc_raw[channel] > i - buffer || rc_raw[channel] <= i + buffer){
-					rc_values[channel] = i;
-					break;
-				}
-		}
-
-	
-
-		double ra_target = map_value(rc_values[0], 1000, 2000, -45, 45);
-		double pa_target = map_value(rc_values[0], 1000, 2000, -45, 45);;
-		double ya_target = map_value(rc_values[0], 1000, 2000, -45, 45);;
+		double ra_target = 0;
+		double pa_target = 0;
+		double ya_target = 0;
 
 		//----------PID's----------\\
-
 		ra_pid_out = ra_pid.compute(ra, ra_target, dt);
 		pa_pid_out = pa_pid.compute(pa, pa_target, dt);
 		ya_pid_out = ya_pid.compute(ya, ya_target, dt);
@@ -175,7 +154,7 @@ void Quadcopter::run() {
 		//--Loop time corrections--\\
 		
 		endTime = micros();
-		
+
 		if (endTime - startTime < 80999) {
 			delayMicroseconds(80999 - (endTime - startTime));
 		}
@@ -217,78 +196,56 @@ void Quadcopter::run() {
 	double xv_target = 0;
 	double yv_target = 0;
 	double zv_target = 0;
-
 	//Distance variables
 	double xd = 0;
 	double yd = 0;
 	double zd = 0;
-
 	//Velocity variables
 	double xv = 0;
 	double yv = 0;
 	double zv = 0;
-
 	//Acceleration variables
 	double xa = 0;
 	double ya = 0;
 	double za = 0;
-
-
 		//Distance PIDs -Used for auto
 	PID xd_pid{ 0, 0, 0 };
 	PID yd_pid{ 0, 0, 0 };
 	PID zd_pid{ 0, 0, 0 };
-
 	//Velocity PIDs
 	PID xv_pid{ 0, 0, 0 };
 	PID yv_pid{ 0, 0, 0 };
 	PID zv_pid{ 0, 0, 0 };
-
-
 	//Integrate Acceleration values to get velocity
 		xv += xa * dt;
 		yv += ya * dt;
 		zv += za * dt;
-
 		//Integrate again to get distance values
 		xd += xv * dt;
 		yd += yv * dt;
 		zd += zv * dt;
-
-
 		double xv_out;
 		double yv_out;
 		double zv_out;
-
 		double* xv_out_arr;
 		double* yv_out_arr;
 		double* zv_out_arr;
-
 		xv_out_arr = xv_pid.compute(xv, xv_target, dt);
 		yv_out_arr = yv_pid.compute(yv, yv_target, dt);
 		zv_out_arr = zv_pid.compute(zv, zv_target, dt);
-
 		xv_out = xv_out_arr[0] + xv_out_arr[1] + xv_out_arr[2];
 		yv_out = yv_out_arr[0] + yv_out_arr[1] + yv_out_arr[2];
 		zv_out = zv_out_arr[0] + zv_out_arr[1] + zv_out_arr[2];
-
 		delete xv_out_arr;
 		delete yv_out_arr;
 		delete zv_out_arr;
-
-
 			//-------Integration-------\\
-
-
-
 		//Integrate angular accel values from gyro to get angular velocity
 		rv += ra * dt;
 		pv += pa * dt;
 		yv += ya * dt;
-
 		//Integrate again to get the angle values
 		ra += rv * dt;
 		pd += pv * dt;
 		yd += yv * dt;
-
 */
