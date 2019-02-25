@@ -28,7 +28,9 @@ private:
 	//Angle variables
 	double ra;
 	double pa;
-	double ya;
+
+	double accel_ra;
+	double accel_pa;
 
 	//Angular velocity variables
 	double rv;
@@ -56,13 +58,9 @@ private:
 	double* mag_out;
 
 	//PID output arrays
-	double* ra_pid_out;
-	double* pa_pid_out;
-	double* ya_pid_out;
-
-	double* rv_pid_out;
-	double* pv_pid_out;
-	double* yv_pid_out;
+	double ra_pid_out;
+	double pa_pid_out;
+	double yv_pid_out;
 
 	//Time variables
 	double startTime;

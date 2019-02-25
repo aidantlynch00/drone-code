@@ -10,5 +10,5 @@ private:
 public:
 	PID(double kp, double ki, double kd);
 	double error(double input, double target);
-	double* compute(double input, double target, double dt);
+	double compute(double input, double target, double dt);
 };

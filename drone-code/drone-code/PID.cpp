@@ -13,7 +13,7 @@ double PID::error(double input, double target) {
 	return (target - input);
 }
 
-double* PID::compute(double input, double target, double dt) {
+double PID::compute(double input, double target, double dt) {
 	double err = error(input, target);
 	double p_error = err;
 	i_error += .5 * (err + previous_error) * dt;
@@ -24,9 +24,7 @@ double* PID::compute(double input, double target, double dt) {
 	double d_output = kd * d_error;
 
 	previous_error = err;
-	double* pid = new double[3];
-	pid[0] = p_output;
-	pid[1] = i_output;
-	pid[2] = d_output;
-	return pid;
+	double output = p_output + i_output + d_output;
+	
+	return output;
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 #include "SoftPWM_GPIO.h"
 
 class ESC {
@@ -10,12 +11,12 @@ public:
 
 private:
 	double lowRange, highRange;
-	int speed;
+	uint32_t pwm;
 	SoftPWM_GPIO* pin;
 
 public:
 	ESC(int bcm_pin);
 	~ESC();
-	void setSpeed(int speed);
-	int getSpeed();
+	void setPWM(int _pwm);
+	int getPWM();
 };

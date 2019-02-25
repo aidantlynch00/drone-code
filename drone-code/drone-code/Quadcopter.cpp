@@ -9,10 +9,24 @@
 #include "KalmanFilter.h"
 #include "RC.h"
 
+#define RUD 0
+#define AIL 1
+#define ELE 2
+#define THR 3
+
 using namespace std;
 
 double map_value(double value, double low1, double high1, double low2, double high2){
 	return low2 + (high2 - low2) * (( value - low1) / (high1 - low1));
+}
+
+double constrain(double value, double min, double max) {
+	if(value < min) 
+		return min;
+	else if(value > max) 
+		return max;
+	else		       
+		return value;
 }
 
 Quadcopter::Quadcopter() {
@@ -22,7 +36,7 @@ Quadcopter::Quadcopter() {
 
 	ra = 0;
 	pa = 0;
-	ya = 0;
+	//ya = 0;
 
 	rv = 0;
 	pv = 0;
@@ -62,7 +76,7 @@ void Quadcopter::print() {
 
 	cout << "Angle X: " << ra << endl;
 	cout << "Angle Y: " << pa << endl;
-	cout << "Angle Z: " << ya << endl << endl;
+	//cout << "Angle Z: " << ya << endl << endl;
 
 	cout << "Rate X: " << rv << endl;
 	cout << "Rate Y: " << pv << endl;
@@ -72,6 +86,11 @@ void Quadcopter::print() {
 	cout << "AIL: " << rc_adj[1] << endl;
 	cout << "ELE: " << rc_adj[2] << endl;
 	cout << "THR: " << rc_adj[3] << endl << endl;
+
+	cout << "FL: " << motors["FL"]->getPWM();
+	cout << "FR: " << motors["FR"]->getPWM();
+	cout << "BL: " << motors["BL"]->getPWM();
+	cout << "BR: " << motors["BR"]->getPWM();
 }
 
 
@@ -88,83 +107,63 @@ void Quadcopter::run() {
 		dt = (endTime - startTime) / 1000000;
 		startTime = micros();
 
-		//TODO: Use magnotemeter to help with yaw
-
 		//Get values from accelerometer, gyroscope, and magnetometer
 		accel_out = imu->readAccel();
 		gyro_out = imu->readGyro();
-		mag_out = imu->readMag();
+		//mag_out = imu->readMag();
 
-		//accel calcs
-		ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
-		pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
+		//Gyro Calcs
+		rv = (float)gyro_out[0] * 0.07; //rgx
+		pv = (float)gyro_out[1] * 0.07; //rgy
+		yv = (float)gyro_out[2] * 0.07; //rgz
 
-		//mag calcs
-		double accXnorm = accel_out[0] / sqrt(accel_out[0] * accel_out[0] + accel_out[1] * accel_out[1] + accel_out[2] * accel_out[2]);
-		double accYnorm = accel_out[1] / sqrt(accel_out[0] * accel_out[0] + accel_out[1] * accel_out[1] + accel_out[2] * accel_out[2]);
+		//Accel Calcs
+		accel_ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
+		accel_pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
 
-		double magXcomp = mag_out[0] * cos(asin(accXnorm)) + mag_out[2] * sin(pa);
-		double magYcomp = mag_out[0] * sin(asin(accYnorm / cos(pa)))*sin(asin(accXnorm)) + mag_out[1] * cos(asin(accYnorm / cos(pa))) - mag_out[2] * sin(asin(accYnorm / cos(pa)))*cos(asin(accXnorm));
-
-		magXcomp = *mag_out*cos(pa) + *(mag_out + 2)*sin(pa);
-		magYcomp = *mag_out*sin(ra)*sin(pa) + *(mag_out + 1)*cos(ra) - *(mag_out + 2)*sin(ra)*cos(pa);
-
-		ya = 180 * atan2(magYcomp, magXcomp) / M_PI;
-		ya += declination * (180 / M_PI);
-
-		if (ya > 360)
-			ya -= 360;
-
-		//gyro calcs
-		rv = (float)gyro_out[0] * 0.5; //rgx
-		pv = (float)gyro_out[1] * 0.5; //rgy
-		yv = (float)gyro_out[2] * 0.5; //rgz
-
-		//ra = kalmanFilterX->compute(ra, rv, dt);
-		//pa = kalmanFilterY->compute(pa, pv, dt);
-		//ya = kalmanFilterZ->compute(ya, yv, dt);
+		//Complementary Filter
+		ra = .98 * (ra + rv * dt) + .02 * accel_ra;
+		pa = .98 * (pa + pv * dt) + .02 * accel_pa;
 
 		//Convert angles to +/- 180
 		ra -= 180;
 		if (pa > 90) pa -= 270;
 		else         pa += 90;
 
-		delete accel_out;
-		delete gyro_out;
+		//delete accel_out;
+		//delete gyro_out;
 
 		//----Collect RC Target----\\
 	
 		rc_values = rc->getValues();
 
 		for (int channel = 0; channel < 4; channel++) {
-			rc_adj[channel] = map_value(rc_values[channel], low, high, 1100, 1900);
+			//rc_adj[channel] = map_value(rc_values[channel], low, high, 1100, 1900);
 			rc_adj[channel] /= buffer;
 			rc_adj[channel] *= buffer;
 		}
 
-	
-
-		double ra_target = 0;//map_value(rc_values[0], 1000, 2000, -45, 45);
-		double pa_target = 0;//map_value(rc_values[0], 1000, 2000, -45, 45);
-		double ya_target = 0;//map_value(rc_values[0], 1000, 2000, -45, 45);
+		double ra_target = map_value(rc_values[AIL], 1000, 2000, -33, 33);
+		double pa_target = map_value(rc_values[THR], 1000, 2000, -33, 33);
+		double yv_target = map_value(rc_values[RUD], 1000, 2000, -180, 180);
+		double lift = constrain(rc_values[ELE], 1100, 1900);
 
 		//----------PID's----------\\
 		
-		ra_pid_out = ra_pid.compute(ra, ra_target, dt);
-		pa_pid_out = pa_pid.compute(pa, pa_target, dt);
-		ya_pid_out = ya_pid.compute(ya, ya_target, dt);
-
-		//rv_pid_out = rv_pid.compute(rv, rv_target, dt);
-		//pv_pid_out = pv_pid.compute(pv, pv_target, dt);
-		//yv_pid_out = yv_pid.compute(yv, yv_target, dt);
+		if (lift > 1100) {
+			ra_pid_out = ra_pid.compute(ra, ra_target, dt);
+			pa_pid_out = pa_pid.compute(pa, pa_target, dt);
+			yv_pid_out = ya_pid.compute(yv, yv_target, dt);
+		}
 
 		//------Change Speed-------\\
-		
-		//double z_pwm = /*hover_pwm + */zv_out;
 
+		motors["FL"]->setPWM(constrain(lift + ra_pid_out + pa_pid_out - yv_pid_out, 1100, 2000));
+		motors["FR"]->setPWM(constrain(lift - ra_pid_out + pa_pid_out + yv_pid_out, 1100, 2000));
+		motors["BL"]->setPWM(constrain(lift + ra_pid_out - pa_pid_out - yv_pid_out, 1100, 2000));
+		motors["BR"]->setPWM(constrain(lift - ra_pid_out - pa_pid_out - yv_pid_out, 1100, 2000));
 
 		print();
-
 
 		//--Loop time corrections--\\
 		
@@ -175,6 +174,28 @@ void Quadcopter::run() {
 		}
 	}
 }
+
+
+/*mag calcs
+double accXnorm = accel_out[0] / sqrt(accel_out[0] * accel_out[0] + accel_out[1] * accel_out[1] + accel_out[2] * accel_out[2]);
+double accYnorm = accel_out[1] / sqrt(accel_out[0] * accel_out[0] + accel_out[1] * accel_out[1] + accel_out[2] * accel_out[2]);
+
+double magXcomp = mag_out[0] * cos(asin(accXnorm)) + mag_out[2] * sin(pa);
+double magYcomp = mag_out[0] * sin(asin(accYnorm / cos(pa)))*sin(asin(accXnorm)) + mag_out[1] * cos(asin(accYnorm / cos(pa))) - mag_out[2] * sin(asin(accYnorm / cos(pa)))*cos(asin(accXnorm));
+
+magXcomp = *mag_out*cos(pa) + *(mag_out + 2)*sin(pa);
+magYcomp = *mag_out*sin(ra)*sin(pa) + *(mag_out + 1)*cos(ra) - *(mag_out + 2)*sin(ra)*cos(pa);
+
+ya = 180 * atan2(magYcomp, magXcomp) / M_PI;
+ya += declination * (180 / M_PI);*/
+
+//ra = kalmanFilterX->compute(ra, rv, dt);
+//pa = kalmanFilterY->compute(pa, pv, dt);
+//ya = kalmanFilterZ->compute(ya, yv, dt);
+
+//rv_pid_out = rv_pid.compute(rv, rv_target, dt);
+//pv_pid_out = pv_pid.compute(pv, pv_target, dt);
+//yv_pid_out = yv_pid.compute(yv, yv_target, dt);
 
 
 
