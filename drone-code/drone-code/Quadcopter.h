@@ -43,14 +43,14 @@ private:
 	KalmanFilter* kalmanFilterZ;
 
 	//Roll, Pitch, Yaw PIDs
-	PID ra_pid{ 0, 0, 0 };
-	PID pa_pid{ 0, 0, 0 };
-	PID ya_pid{ 0, 0, 0 };
+	PID ra_pid{ 1, 1, 1 };
+	PID pa_pid{ 1, 1, 1 };
+	PID ya_pid{ 1, 1, 1 };
 
 	//Roll, Pitch, and Yaw angular velocity PID's
-	PID rv_pid{ 0, 0, 0 };
-	PID pv_pid{ 0, 0, 0 };
-	PID yv_pid{ 0, 0, 0 };
+	PID rv_pid{ 1, 1, 1 };
+	PID pv_pid{ 1, 1, 1 };
+	PID yv_pid{ 1, 1, 1 };
 
 	//Raw output arrays
 	double* accel_out;

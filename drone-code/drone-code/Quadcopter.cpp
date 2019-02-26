@@ -82,15 +82,15 @@ void Quadcopter::print() {
 	cout << "Rate Y: " << pv << endl;
 	cout << "Rate Z: " << yv << endl << endl;
 	
-	cout << "RUD: " << rc_adj[0] << endl;
-	cout << "AIL: " << rc_adj[1] << endl;
-	cout << "ELE: " << rc_adj[2] << endl;
-	cout << "THR: " << rc_adj[3] << endl << endl;
+	cout << "RUD: " << rc_adj[RUD] << endl;
+	cout << "AIL: " << rc_adj[AIL] << endl;
+	cout << "ELE: " << rc_adj[ELE] << endl;
+	cout << "THR: " << rc_adj[THR] << endl << endl;
 
-	cout << "FL: " << motors["FL"]->getPWM();
-	cout << "FR: " << motors["FR"]->getPWM();
-	cout << "BL: " << motors["BL"]->getPWM();
-	cout << "BR: " << motors["BR"]->getPWM();
+	cout << "FL: " << motors["FL"]->getPWM() << endl;
+	cout << "FR: " << motors["FR"]->getPWM() << endl;
+	cout << "BL: " << motors["BL"]->getPWM() << endl;
+	cout << "BR: " << motors["BR"]->getPWM() << endl << endl;
 }
 
 
@@ -98,8 +98,6 @@ void Quadcopter::print() {
 void Quadcopter::run() {
 	bool flying = true;
 	int buffer = 50;
-	int low = 1000;
-	int high = 2000;
 
 	//Pitch is rotating about the Y axis, Roll is rotating about the X axis, Yaw is rotating about the Z axis
 
