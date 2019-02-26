@@ -137,14 +137,15 @@ void Quadcopter::run() {
 
 		for (int channel = 0; channel < 4; channel++) {
 			//rc_adj[channel] = map_value(rc_values[channel], low, high, 1100, 1900);
+			rc_adj[channel] = rc_values[channel];
 			rc_adj[channel] /= buffer;
 			rc_adj[channel] *= buffer;
 		}
 
-		double ra_target = map_value(rc_values[AIL], 1000, 2000, -33, 33);
-		double pa_target = map_value(rc_values[THR], 1000, 2000, -33, 33);
-		double yv_target = map_value(rc_values[RUD], 1000, 2000, -180, 180);
-		double lift = constrain(rc_values[ELE], 1100, 1900);
+		double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
+		double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
+		double yv_target = map_value(rc_adj[RUD], 1000, 2000, -180, 180);
+		double lift = constrain(rc_adj[ELE], 1100, 1900);
 
 		//----------PID's----------\\
 		
