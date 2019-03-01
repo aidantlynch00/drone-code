@@ -99,40 +99,12 @@ void Quadcopter::print() {
 
 void Quadcopter::run() {
 	bool flying = true;
+	int count = 0;
 	int buffer = 50;
 
 	//Pitch is rotating about the Y axis, Roll is rotating about the X axis, Yaw is rotating about the Z axis
 
 	while (flying) {
-		dt = (endTime - startTime) / 1000000.0;
-		startTime = micros();
-
-		//Get values from accelerometer, gyroscope, and magnetometer
-		accel_out = imu->readAccel();
-		gyro_out = imu->readGyro();
-		//mag_out = imu->readMag();
-
-		//Gyro Calcs
-		rv = (float)gyro_out[0] * 0.07; //rgx
-		pv = (float)gyro_out[1] * 0.07; //rgy
-		yv = (float)gyro_out[2] * 0.07; //rgz
-
-		//Accel Calcs
-		ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
-		pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
-
-		//Complementary Filter
-		//ra = .98 * (ra + rv * dt) + .02 * accel_ra;
-		//pa = .98 * (pa + pv * dt) + .02 * accel_pa;
-
-		//Convert angles to +/- 180
-		//ra -= 180;
-		//if (pa > 90) pa -= 270;
-		//else         pa += 90;
-		if (ra>180)		ra -= 360;
-
-		//delete accel_out;
-		//delete gyro_out;
 
 		//----Collect RC Target----\\
 	
@@ -146,37 +118,74 @@ void Quadcopter::run() {
 			rc_adj[channel] = constrain(rc_adj[channel], 1000, 2000);
 		}
 
-		double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
-		double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
-		double yv_target = map_value(rc_adj[RUD], 1000, 2000, -180, 180);
-		double lift = constrain(rc_adj[ELE], 1100, 1900);
+		count = 0;
 
-		//----------PID's----------\\
-		
-		if (lift > 1100) {
-			ra_pid_out = ra_pid.compute(ra, ra_target, dt);
-			pa_pid_out = pa_pid.compute(pa, pa_target, dt);
-			yv_pid_out = ya_pid.compute(yv, yv_target, dt);
+		while (true) {
+			dt = (endTime - startTime) / 1000000.0;
+			startTime = micros();
+			count++;
+
+			//Get values from accelerometer, gyroscope, and magnetometer
+			accel_out = imu->readAccel();
+			gyro_out = imu->readGyro();
+			//mag_out = imu->readMag();
+
+			//Gyro Calcs
+			rv = (float)gyro_out[0] * 0.07; //rgx
+			pv = (float)gyro_out[1] * 0.07; //rgy
+			yv = (float)gyro_out[2] * 0.07; //rgz
+
+			//Accel Calcs
+			ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
+			pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
+
+			//Complementary Filter
+			//ra = .98 * (ra + rv * dt) + .02 * accel_ra;
+			//pa = .98 * (pa + pv * dt) + .02 * accel_pa;
+
+			//Convert angles to +/- 180
+			//ra -= 180;
+			//if (pa > 90) pa -= 270;
+			//else         pa += 90;
+			if (ra > 180)		
+				ra -= 360;
+
+			//delete accel_out;
+			//delete gyro_out;
+
+			double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
+			double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
+			double yv_target = map_value(rc_adj[RUD], 1000, 2000, -180, 180);
+			double lift = constrain(rc_adj[ELE], 1100, 1900);
+
+			//----------PID's----------\\
+			
+			if (lift > 1100) {
+				ra_pid_out = ra_pid.compute(ra, ra_target, dt);
+				pa_pid_out = pa_pid.compute(pa, pa_target, dt);
+				yv_pid_out = ya_pid.compute(yv, yv_target, dt);
+			}
+
+			//------Change Speed-------\\
+
+			motors["FL"]->setPWM(constrain(lift + ra_pid_out + pa_pid_out - yv_pid_out, 1100, 2000));
+			motors["FR"]->setPWM(constrain(lift - ra_pid_out + pa_pid_out + yv_pid_out, 1100, 2000));
+			motors["BL"]->setPWM(constrain(lift + ra_pid_out - pa_pid_out - yv_pid_out, 1100, 2000));
+			motors["BR"]->setPWM(constrain(lift - ra_pid_out - pa_pid_out - yv_pid_out, 1100, 2000));
+
+			print();
+
+			//--Loop time corrections--\\
+
+			if (micros() - startTime < 13000) {
+				delayMicroseconds(13000 - (endTime - startTime + 30));
+			}
+
+			endTime = micros();
+			
+			if (count == 5)
+				break;
 		}
-
-		//------Change Speed-------\\
-
-		motors["FL"]->setPWM(constrain(lift + ra_pid_out + pa_pid_out - yv_pid_out, 1100, 2000));
-		motors["FR"]->setPWM(constrain(lift - ra_pid_out + pa_pid_out + yv_pid_out, 1100, 2000));
-		motors["BL"]->setPWM(constrain(lift + ra_pid_out - pa_pid_out - yv_pid_out, 1100, 2000));
-		motors["BR"]->setPWM(constrain(lift - ra_pid_out - pa_pid_out - yv_pid_out, 1100, 2000));
-
-		print();
-
-		//--Loop time corrections--\\
-		
-		endTime = micros();
-
-		if (endTime - startTime < 65000) {
-			delayMicroseconds(65000 - (endTime - startTime + 30));
-		}
-		
-		endTime = micros();
 	}
 }
 
