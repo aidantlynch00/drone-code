@@ -36,11 +36,11 @@ Quadcopter::Quadcopter() {
 
 	ra = 0;
 	pa = 0;
-	//ya = 0;
+	yv = 0;
 
 	rv = 0;
 	pv = 0;
-	yv = 0;
+	
 
 	kalmanFilterX = new KalmanFilter();
 	kalmanFilterY = new KalmanFilter();
@@ -50,6 +50,11 @@ Quadcopter::Quadcopter() {
 	motors["FR"] = new ESC(13);
 	motors["BL"] = new ESC(19);
 	motors["BR"] = new ESC(26);
+	
+	motors["FL"]->setPWM(1000);
+	motors["FR"]->setPWM(1000);
+	motors["BL"]->setPWM(1000);
+	motors["BR"]->setPWM(1000);
 
 	startTime = 0;
 	endTime = 0;
@@ -72,6 +77,7 @@ Quadcopter::~Quadcopter() {
 
 
 void Quadcopter::print() {
+	
 	cout << "Angle X: " << ra << endl;
 	cout << "Angle Y: " << pa << endl;
 	//cout << "Angle Z: " << ya << endl << endl;
@@ -84,13 +90,13 @@ void Quadcopter::print() {
 	cout << "AIL: " << rc_adj[AIL] << endl;
 	cout << "ELE: " << rc_adj[ELE] << endl;
 	cout << "THR: " << rc_adj[THR] << endl << endl;
-
+	
 	cout << "FL: " << motors["FL"]->getPWM() << endl;
 	cout << "FR: " << motors["FR"]->getPWM() << endl;
 	cout << "BL: " << motors["BL"]->getPWM() << endl;
 	cout << "BR: " << motors["BR"]->getPWM() << endl << endl;
 	
-	cout << "DT: " << dt * 1000000 << endl << endl << endl << endl << endl << endl << endl << endl;
+	cout << "DT: " << dt * 1000000 << endl << endl << endl << endl << endl << endl;
 }
 
 
@@ -160,6 +166,8 @@ void Quadcopter::run() {
 		double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
 		double yv_target = map_value(rc_adj[RUD], 1000, 2000, -180, 180);
 		double lift = constrain(rc_adj[ELE], 1100, 1900);
+		
+		
 
 		//----------PID's----------\\
 			
@@ -175,10 +183,10 @@ void Quadcopter::run() {
 		int br = lift - ra_pid_out - pa_pid_out - yv_pid_out;
 		
 		//cout << "FL:::" << fl << endl;
-		fl = constrain(fl, 1000, 2000);
-		fr = constrain(fr, 1000, 2000);
-		bl = constrain(bl, 1000, 2000);
-		br = constrain(br, 1000, 2000);
+		//fl = constrain(fl, 1000, 2000);
+		//fr = constrain(fr, 1000, 2000);
+		//bl = constrain(bl, 1000, 2000);
+		//br = constrain(br, 1000, 2000);
 
 		motors["FL"]->setPWM(fl);
 		motors["FR"]->setPWM(fr);
