@@ -81,9 +81,8 @@ Quadcopter::~Quadcopter() {
 
 void Quadcopter::print() {
 	
-	cout << "Angle X: " << smooth_ra << endl;
-	cout << "Angle Y: " << smooth_pa << endl;
-	//cout << "Angle Z: " << ya << endl << endl;
+	cout << "Angle X: " << ra << endl;
+	cout << "Angle Y: " << pa << endl;
 
 	cout << "Rate X: " << rv << endl;
 	cout << "Rate Y: " << pv << endl;
@@ -106,6 +105,7 @@ void Quadcopter::print() {
 
 void Quadcopter::run() {
 	bool flying = true;
+	bool firstLoop = true;
 	int count = 0;
 	int buffer = 50;
 
@@ -144,12 +144,20 @@ void Quadcopter::run() {
 		//Accel Calcs
 		accel_ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
 		accel_pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
-
-		//Complementary Filter: TODO
-		ra = .98 * (ra + rv * dt) + .02 * accel_ra;
-		pa = .98 * (pa + pv * dt) + .02 * accel_pa;
 		
-		//Wrap around
+		if(firstLoop){
+			ra = accel_ra; 
+			pa = accel_pa;
+			firstLoop = false;
+		}
+		
+		cout << pa << endl;
+		
+		//Complementary Filter: TODO
+		ra = .98 * (ra + (rv * dt)) + .02 * accel_ra;
+		pa = .98 * (pa + (pv * dt)) + .02 * accel_pa;
+		
+		//Wrap around ALL OF THIS CODE IS FLAWED
 		if(ra > 360)
 			ra -= 360;
 		if(pa > 360)
@@ -160,8 +168,8 @@ void Quadcopter::run() {
 			ra -= 360;
 		if(pa >= 270)
 			pa -= 450;
-		else
-			pa -= 90;
+		else;
+			//pa -= 90;
 
 		double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
 		double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
