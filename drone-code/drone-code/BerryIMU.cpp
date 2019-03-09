@@ -6,13 +6,17 @@
 #include "fcntl.h"
 #include "LSM9DS1.h"
 #include "BerryIMU.h"
+#include <iostream>
 
 int file; 
 int LSM9DS1 = 0;
 
+using namespace std;
+
 BerryIMU::BerryIMU(){
 	detectIMU();
 	enableIMU();
+	//cout << "Here" << endl;
 }
 
 BerryIMU::~BerryIMU(){
@@ -129,7 +133,9 @@ void BerryIMU::detectIMU()
 }
 
 void BerryIMU::enableIMU() {
-	if (LSM9DS1) {     
+	//cout << "Here";
+	if (LSM9DS1) {  
+		//cout << "Here";   
 		// Enable the gyroscope
 		writeGyroReg(LSM9DS1_CTRL_REG4, 0b00111000);      // z, y, x axis enabled for gyro
 		writeGyroReg(LSM9DS1_CTRL_REG1_G, 0b10111000);    // Gyro ODR = 476Hz, 2000 dps

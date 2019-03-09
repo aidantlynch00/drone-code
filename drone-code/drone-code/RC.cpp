@@ -2,23 +2,26 @@
 #include <iostream>
 #include <wiringPi.h>
 #include <wiringSerial.h>
+#include "softPwm_wpi.h"
 #include <string>
 #include <cmath>
 #include <cstring>
 #include <string>
 #include "GPIO.h"
 
-#define RC_NUM_CHANNELS  4
+#define RC_NUM_CHANNELS  5
 
 #define RC_CH1  0
 #define RC_CH2  1
 #define RC_CH3  2
 #define RC_CH4  3
+#define RC_CH5  4
 
 #define RC_CH1_INPUT  4		//RUDDER
 #define RC_CH2_INPUT  17	//AILERON
 #define RC_CH3_INPUT  27	//ELEVATIONATOR
 #define RC_CH4_INPUT  22	//THROTHRLE
+#define RC_CH5_INPUT  23        //CH5
 
 using namespace std;
 
@@ -59,6 +62,11 @@ void calc_ch4()
     calc_input(RC_CH4, RC_CH4_INPUT);
 }
 
+void calc_ch5()
+{
+    calc_input(RC_CH5, RC_CH5_INPUT);
+}
+
 RC::RC()
 {
     setup();
@@ -71,11 +79,13 @@ void RC::setup() {
   pinMode(RC_CH2_INPUT, INPUT);
   pinMode(RC_CH3_INPUT, INPUT);
   pinMode(RC_CH4_INPUT, INPUT);
+  pinMode(RC_CH5_INPUT, INPUT);
 
   wiringPiISR(RC_CH1_INPUT, INT_EDGE_BOTH, &calc_ch1);       //Creates Interrupt
   wiringPiISR(RC_CH2_INPUT, INT_EDGE_BOTH, &calc_ch2);
   wiringPiISR(RC_CH3_INPUT, INT_EDGE_BOTH, &calc_ch3);
   wiringPiISR(RC_CH4_INPUT, INT_EDGE_BOTH, &calc_ch4);
+  wiringPiISR(RC_CH5_INPUT, INT_EDGE_BOTH, &calc_ch5);
 }
 
 void RC::read() {

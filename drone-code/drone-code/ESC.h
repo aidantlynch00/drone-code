@@ -3,9 +3,9 @@
 #include "SoftPWM_GPIO.h"
 
 class ESC {
-	SoftPWM_GPIO motors[4];
 
 public:
+	SoftPWM_GPIO* motors[4];
 	ESC();
 	~ESC();
 	void setPWM(int motor, uint32_t pwm);

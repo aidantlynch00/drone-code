@@ -25,6 +25,9 @@ void GPIO::setValue(int _value) {
 }
 
 int GPIO::getValue() {
+	if(mode == INPUT)
+		value = digitalRead(bcm_pin);
+		
 	return value;
 }
 

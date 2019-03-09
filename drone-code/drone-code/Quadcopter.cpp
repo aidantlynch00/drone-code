@@ -8,16 +8,18 @@
 #include "BerryIMU.h"
 #include "KalmanFilter.h"
 #include "RC.h"
+#include "GPIO.h"
 
 #define RUD 0
 #define AIL 1
 #define ELE 2
 #define THR 3
+#define KILL 4
 
-#define BR 6
-#define FR 13
-#define FL 19
-#define BL 26
+#define BR 0
+#define FR 1
+#define FL 2
+#define BL 3
 
 using namespace std;
 
@@ -36,8 +38,9 @@ double constrain(double value, double min, double max) {
 
 Quadcopter::Quadcopter() {
 	//TODO: Replace pin numbers when hardware is connected
-	imu = new BerryIMU{};
-	rc_adj = new uint32_t[3];
+	imu = new BerryIMU();
+	rc = new RC();
+	rc_adj = new uint32_t[5];
 
 	ra = 0;
 	pa = 0;
@@ -52,13 +55,14 @@ Quadcopter::Quadcopter() {
 	kalmanFilterZ = new KalmanFilter();
 
 	esc = new ESC();
-
+	
 	startTime = 0;
 	endTime = 0;
 }
 
 Quadcopter::~Quadcopter() {
 	delete imu;
+	delete rc;
 
 	delete kalmanFilterX;
 	delete kalmanFilterY;
@@ -70,13 +74,15 @@ Quadcopter::~Quadcopter() {
 
 
 void Quadcopter::print() {
-	
 	cout << "Angle X: " << kalmanX << endl;
 	cout << "Angle Y: " << kalmanY << endl;
+	
+	//cout << "Raw X: " << accel_ra << endl;
+	//cout << "Raw Y: " << accel_pa << endl;
 
-	cout << "Rate X: " << rv << endl;
-	cout << "Rate Y: " << pv << endl;
-	cout << "Rate Z: " << yv << endl << endl;
+	//cout << "Rate X: " << rv << endl;
+	//cout << "Rate Y: " << pv << endl;
+	//cout << "Rate Z: " << yv << endl << endl;
 	
 	cout << "RUD: " << rc_adj[RUD] << endl;
 	cout << "AIL: " << rc_adj[AIL] << endl;
@@ -94,8 +100,7 @@ void Quadcopter::print() {
 
 
 void Quadcopter::run() {
-	bool flying = true;
-	bool firstLoop = true;
+	flying = true;
 	int count = 0;
 	int buffer = 50;
 
@@ -111,70 +116,82 @@ void Quadcopter::run() {
 		if (count == 16) {
 			rc_values = rc->getValues();
 
-			for (int channel = 0; channel < 4; channel++) {
+			for (int channel = 0; channel < 5; channel++) {
 				rc_adj[channel] = rc_values[channel];
-				rc_adj[channel] /= buffer;
-				rc_adj[channel] *= buffer;
-				rc_adj[channel] = constrain(rc_adj[channel], 1000, 2000);
+				//rc_adj[channel] /= buffer;
+				//rc_adj[channel] *= buffer;
+				rc_adj[channel] = constrain(rc_adj[channel], 1000, 1999);
 			}
 
 			count = 0;
 			print();
 		}
-
-		//Get values from accelerometer, gyroscope, and magnetometer
-		accel_out = imu->readAccel();
-		gyro_out = imu->readGyro();
-
-		//Gyro Calcs
-		rv = (float)gyro_out[0] * 0.07; //rgx
-		pv = (float)gyro_out[1] * 0.07; //rgy
-		yv = (float)gyro_out[2] * 0.07; //rgz
-
-		//Accel Calcs
-		accel_ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
-		accel_pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
-		
-		//Accel range
-		accel_ra = map_value(accel_ra, 0, 360, -180, 180);
-		accel_pa = map_value(accel_pa, 0, 360, -180, 180);
-
-		//Complementary Filter: TODO
-		//ra = .98 * (ra + (rv * dt)) + .02 * accel_ra;
-		//pa = .98 * (pa + (pv * dt)) + .02 * accel_pa;
-
-		//Kalman Filter
-		kalmanX = kalmanFilterX->kalmanX(accel_ra, rv, dt);
-		kalmanY = kalmanFilterY->kalmanY(accel_pa, pv, dt);
-
-		double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
-		double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
-		double yv_target = map_value(rc_adj[RUD], 1000, 2000, -180, 180);
-		double lift = constrain(rc_adj[ELE], 1100, 1900);
-
-		//----------PID's----------\\
 			
-		ra_pid_out = ra_pid.compute(ra, ra_target, dt);
-		pa_pid_out = pa_pid.compute(pa, pa_target, dt);
-		yv_pid_out = yv_pid.compute(yv, yv_target, dt);
-
-		//------Change Speed-------\\
 		
-		int fl = lift + ra_pid_out + pa_pid_out - yv_pid_out;
-		int fr = lift - ra_pid_out + pa_pid_out + yv_pid_out;
-		int bl = lift + ra_pid_out - pa_pid_out + yv_pid_out;
-		int br = lift - ra_pid_out - pa_pid_out - yv_pid_out;
+		if(rc_adj[KILL] < 1500){
+			//Get values from accelerometer, gyroscope, and magnetometer
+			accel_out = imu->readAccel();
+			gyro_out = imu->readGyro();
+
+			//Gyro Calcs
+			rv = (float)gyro_out[0] * 0.07; //rgx
+			pv = (float)gyro_out[1] * 0.07; //rgy
+			yv = (float)gyro_out[2] * 0.07; //rgz
+
+			//Accel Calcs
+			accel_ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
+			accel_pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
 		
-		//fl = constrain(fl, 1000, 2000);
-		//fr = constrain(fr, 1000, 2000);
-		//bl = constrain(bl, 1000, 2000);
-		//br = constrain(br, 1000, 2000);
+			//Accel range
+			if (accel_ra > 180)
+				accel_ra = map_value(accel_ra, 180, 360, -180, 0); 
+			//accel_ra = map_value(accel_ra, 0, 360, -180, 180);
+			accel_pa = map_value(accel_pa, 0, 180, -90, 90);
 
-		esc->setPWM(FL, fl);
-		esc->setPWM(FR, fr);
-		esc->setPWM(BL, bl);
-		esc->setPWM(BR, br);
+			//Complementary Filter: TODO
+			//ra = .98 * (ra + (rv * dt)) + .02 * accel_ra;
+			//pa = .98 * (pa + (pv * dt)) + .02 * accel_pa;
 
+			//Kalman Filter
+			kalmanX = kalmanFilterX->kalmanX(accel_ra, rv, dt);
+			kalmanY = kalmanFilterY->kalmanY(accel_pa, pv, dt);
+
+			double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
+			double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
+			double yv_target = map_value(rc_adj[RUD], 1000, 2000, -180, 180);
+			double lift = constrain(rc_adj[ELE], 1100, 1900);
+
+			//----------PID's----------\\
+			
+			ra_pid_out = ra_pid.compute(ra, ra_target, dt);
+			pa_pid_out = pa_pid.compute(pa, pa_target, dt);
+			yv_pid_out = yv_pid.compute(yv, yv_target, dt);
+
+			//------Change Speed-------\\
+		
+			int fl = lift + ra_pid_out + pa_pid_out - yv_pid_out;
+			int fr = lift - ra_pid_out + pa_pid_out + yv_pid_out;
+			int bl = lift + ra_pid_out - pa_pid_out + yv_pid_out;
+			int br = lift - ra_pid_out - pa_pid_out - yv_pid_out;
+		
+			fl = constrain(fl, 1000, 1999);
+			fr = constrain(fr, 1000, 1999);
+			bl = constrain(bl, 1000, 1999);
+			br = constrain(br, 1000, 1999);
+
+			//TODO: Change back to specialize
+			esc->setPWM(FL, fl);
+			esc->setPWM(FR, fr);
+			esc->setPWM(BL, bl);
+			esc->setPWM(BR, br);
+		}
+		else{
+			esc->setPWM(FL, 1000);
+			esc->setPWM(FR, 1000);
+			esc->setPWM(BL, 1000);
+			esc->setPWM(BR, 1000);
+		}
+		
 		//--Loop time corrections--\\
 		
 		endTime = micros();

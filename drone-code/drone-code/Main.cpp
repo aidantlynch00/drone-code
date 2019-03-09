@@ -1,4 +1,5 @@
 #include <wiringPi.h>
+#include "softPwm.h"
 #include "GPIO.h"
 #include "SoftPWM_GPIO.h"
 #include "BerryIMU.h"

@@ -1,27 +1,29 @@
 #include <wiringPi.h>
-#include <softPwm.h>
+#include "softPwm_wpi.h"
 #include "SoftPWM_GPIO.h"
 #include <iostream>
 
 using namespace std;
 
-SoftPWM_GPIO::SoftPWM_GPIO(int bcm_pin): GPIO(bcm_pin, OUTPUT){
-	softPwmCreate(bcm_pin, 0, 2000);
+SoftPWM_GPIO::SoftPWM_GPIO(){
 	value = 0;
 }
 
-SoftPWM_GPIO::SoftPWM_GPIO() : GPIO(-1, OUTPUT) {
-	cerr << "Default SPWM constructor called" << endl;
+SoftPWM_GPIO::SoftPWM_GPIO(int bcm_pin){
+	pin = bcm_pin;
+	pinMode(bcm_pin, OUTPUT);
+	softPwmCreate(bcm_pin, 1000, 2000);
+	value = 1000;
 }
 
 SoftPWM_GPIO::~SoftPWM_GPIO(){
-	softPwmStop(bcm_pin);
-	//Base Class constructor implicity called here
+	softPwmStop(pin);
 }
 
 void SoftPWM_GPIO::setValue(uint32_t _value) {
 	value = _value;
-	softPwmWrite(bcm_pin, value);
+	//cout << "Pin: " << pin << "   Value: " << value << endl;
+	softPwmWrite(pin, value);
 }
 
 uint32_t SoftPWM_GPIO::getValue() {

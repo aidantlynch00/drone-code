@@ -8,6 +8,7 @@
 #include "KalmanFilter.h"
 #include "RC.h"
 #include <cmath>
+#include "GPIO.h"
 
 using namespace std;
 
@@ -17,8 +18,9 @@ private:
 	const double declination = 43.92 / 1000.0;
 
 	ESC* esc;
+	RC* rc;
 	BerryIMU* imu;
-	RC* rc = new RC();
+	bool flying;
 
 	//VALUES NEEDED FOR CALCULATIONS
 	//RC values
@@ -45,11 +47,11 @@ private:
 	double kalmanY;
 
 	//Roll, Pitch, Yaw PIDs
-	PID ra_pid{ .01, .01, .01 };
-	PID pa_pid{ .01, .01, .01 };
+	PID ra_pid{ 0.01, 0.01, 0.01 };
+	PID pa_pid{ 0.01, 0.01, 0.01 };
 
 	//Roll, Pitch, and Yaw angular velocity PID's
-	PID yv_pid{ .01, .01, .01 };
+	PID yv_pid{ 0.01, 0.01, 0.01};
 
 	//Raw output arrays
 	double* accel_out;
@@ -65,7 +67,6 @@ private:
 	uint32_t startTime;
 	uint32_t endTime;
 	double dt;
-
 
 public:
 	Quadcopter();
