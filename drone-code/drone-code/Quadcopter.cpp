@@ -36,6 +36,43 @@ double constrain(double value, double min, double max) {
 		return value;
 }
 
+
+void add(double* array, double num){
+	for(int i = 15; i > 0; i--){
+		array[i] = array[i - 1];
+	}
+	
+	array[0] = num;
+}
+
+//Assume of size 16
+double* insertion_sort(double* array){
+	double* sorted = new double[16];
+	
+	for(int i = 0; i < 16; i++){
+		sorted[i] = array[i];
+	}
+	
+	double key = 0;
+	for(int i = 1; i < 16; i++){
+		key = sorted[i];
+		int j = i - 1;
+		
+		while(j >= 0 && sorted[j] > key){
+			sorted[j + 1] = sorted[j];
+			j--;
+		}
+		
+		sorted[j + 1] = key;
+	}
+	
+	return sorted;
+}
+
+double median(double* array){
+	return ((array[8] + array[9]) / 2);
+}
+
 Quadcopter::Quadcopter() {
 	//TODO: Replace pin numbers when hardware is connected
 	imu = new BerryIMU();
@@ -53,7 +90,17 @@ Quadcopter::Quadcopter() {
 	kalmanFilterX = new KalmanFilter();
 	kalmanFilterY = new KalmanFilter();
 	kalmanFilterZ = new KalmanFilter();
-
+	
+	ra_pid_raw = new double[16];
+	pa_pid_raw = new double[16];
+	yv_pid_raw = new double[16];
+	
+	for(int i = 0; i < 16; i++){
+		ra_pid_raw[i] = 0;
+		pa_pid_raw[i] = 0;
+		yv_pid_raw[i] = 0;
+	}
+	
 	esc = new ESC();
 	
 	startTime = 0;
@@ -102,6 +149,7 @@ void Quadcopter::print() {
 void Quadcopter::run() {
 	flying = true;
 	int count = 0;
+	int preflight_count = 0;
 	int buffer = 50;
 
 	//Pitch is rotating about the Y axis, Roll is rotating about the X axis, Yaw is rotating about the Z axis
@@ -118,7 +166,7 @@ void Quadcopter::run() {
 		cout << "Before THR: " << rc_adj[THR] << endl << endl;
 
 		//RC collection logic
-		if (count == 1) {
+		if (count == 16) {
 			rc_values = rc->getValues();
 
 			for (int channel = 0; channel < 5; channel++) {
@@ -132,69 +180,69 @@ void Quadcopter::run() {
 			print();
 		}
 			
+		//Get values from accelerometer, gyroscope, and magnetometer
+		accel_out = imu->readAccel();
+		gyro_out = imu->readGyro();
+
+		//Gyro Calcs
+		rv = (float)gyro_out[0] * 0.07; //rgx
+		pv = (float)gyro_out[1] * 0.07; //rgy
+		yv = (float)gyro_out[2] * 0.07; //rgz
+
+		//Accel Calcs
+		accel_ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
+		accel_pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
 		
-		if(rc_adj[KILL] < 1500){
-			//Get values from accelerometer, gyroscope, and magnetometer
-			accel_out = imu->readAccel();
-			gyro_out = imu->readGyro();
-
-			//Gyro Calcs
-			rv = (float)gyro_out[0] * 0.07; //rgx
-			pv = (float)gyro_out[1] * 0.07; //rgy
-			yv = (float)gyro_out[2] * 0.07; //rgz
-
-			//Accel Calcs
-			accel_ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
-			accel_pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
-		
-			//Accel range
-			if (accel_ra > 180)
-				accel_ra = map_value(accel_ra, 180, 360, -180, 0); 
-			//accel_ra = map_value(accel_ra, 0, 360, -180, 180);
-			accel_pa = map_value(accel_pa, 0, 180, -90, 90);
-
-			//Complementary Filter: TODO
-			//ra = .98 * (ra + (rv * dt)) + .02 * accel_ra;
-			//pa = .98 * (pa + (pv * dt)) + .02 * accel_pa;
+		//Accel range
+		if (accel_ra > 180)
+			accel_ra = map_value(accel_ra, 180, 360, -180, 0); 
+		//accel_ra = map_value(accel_ra, 0, 360, -180, 180);
+		accel_pa = map_value(accel_pa, 0, 180, -90, 90);
  
-			//Kalman Filter
-			kalmanX = kalmanFilterX->kalmanX(accel_ra, rv, dt);
-			kalmanY = kalmanFilterY->kalmanY(accel_pa, pv, dt);
+		//Kalman Filter
+		kalmanX = kalmanFilterX->kalmanX(accel_ra, rv, dt);
+		kalmanY = kalmanFilterY->kalmanY(accel_pa, pv, dt);
 
-			double ra_target = map_value(rc_adj[AIL], 1000, 1800, -33, 33);
-			double pa_target = map_value(rc_adj[THR], 1000, 1800, -33, 33);
-			double yv_target = map_value(rc_adj[RUD], 1000, 1800, -180, 180);
-			double lift = constrain(rc_adj[ELE], 1000, 1800);
+		double ra_target = map_value(rc_adj[AIL], 1000, 1800, -33, 33);
+		double pa_target = map_value(rc_adj[THR], 1000, 1800, -33, 33);
+		double yv_target = map_value(rc_adj[RUD], 1000, 1800, -180, 180);
+		double lift = constrain(rc_adj[ELE], 1000, 1800);
 
-			//----------PID's----------\\
+		//----------PID's----------\\
 			
-			cout << "RA PID: " << endl;
-			ra_pid_out = ra_pid.compute(kalmanX, ra_target, dt);
-			//cout << "PA PID: " << endl;
-			//pa_pid_out = pa_pid.compute(kalmanY, pa_target, dt);
-			//cout << "YV PID: " << endl;
-			//yv_pid_out = yv_pid.compute(yv, yv_target, dt);
-
-			//------Change Speed-------\\
+		cout << "RA PID: " << endl;
+		ra_pid_out = ra_pid.compute(kalmanX, ra_target, dt);
+		//cout << "PA PID: " << endl;
+		//pa_pid_out = pa_pid.compute(kalmanY, pa_target, dt);
+		//cout << "YV PID: " << endl;
+		//yv_pid_out = yv_pid.compute(yv, yv_target, dt);
 		
-			int fl = lift + ra_pid_out - pa_pid_out - yv_pid_out;
-			int fr = lift - ra_pid_out - pa_pid_out + yv_pid_out;
-			int bl = lift + ra_pid_out + pa_pid_out + yv_pid_out;
-			int br = lift - ra_pid_out + pa_pid_out - yv_pid_out;
+		add(ra_pid_raw, ra_pid_out);
+		add(pa_pid_raw, pa_pid_out);
+		add(yv_pid_raw, yv_pid_out);
+		
+		preflight_count++;
+		
+		if(rc_adj[KILL] > 1500 || preflight_count < 16)
+			esc->setPWM(FL, 1000);
+			esc->setPWM(FR, 1000);
+			esc->setPWM(BL, 1000);
+			esc->setPWM(BR, 1000);
+		}
+		else{
+			ra_pid_sorted = insertion_sort(ra_pid_raw);
+			double ra_pid_value = median(ra_pid_sorted);
+			pa_pid_sorted = insertion_sort(pa_pid_raw);
+			double pa_pid_value = median(pa_pid_sorted);
+			yv_pid_sorted = insertion_sort(yv_pid_raw);
+			double yv_pid_value = median(yv_pid_sorted);
 			
-			//cout << "RUD: " << rc_adj[RUD] << endl;
-			//cout << "AIL: " << rc_adj[AIL] << endl;
-			//cout << "ELE: " << rc_adj[ELE] << endl;
-			//cout << "THR: " << rc_adj[THR] << endl;
+			//------Change Speed-------\\
 			
-			//cout << "RA PID: " << ra_pid_out << endl;
-			//cout << "PA PID: " << pa_pid_out << endl;
-			//cout << "YV PID: " << yv_pid_out << endl;
-			
-			//cout << "Raw FL: " << fl << endl;
-			//cout << "Raw FR: " << fr << endl;
-			//cout << "Raw BL: " << bl << endl;
-			//cout << "Raw BR: " << br << endl << endl;
+			int fl = lift + ra_pid_value - pa_pid_value - yv_pid_value;
+			int fr = lift - ra_pid_value - pa_pid_value + yv_pid_value;
+			int bl = lift + ra_pid_value + pa_pid_value + yv_pid_value;
+			int br = lift - ra_pid_value + pa_pid_value - yv_pid_value;
 		
 			fl = constrain(fl, 1000, 1999);
 			fr = constrain(fr, 1000, 1999);
@@ -205,13 +253,6 @@ void Quadcopter::run() {
 			esc->setPWM(FR, fr);
 			esc->setPWM(BL, bl);
 			esc->setPWM(BR, br);
-
-		}
-		else{
-			esc->setPWM(FL, 1000);
-			esc->setPWM(FR, 1000);
-			esc->setPWM(BL, 1000);
-			esc->setPWM(BR, 1000);
 		}
 		
 		//--Loop time corrections--\\
@@ -226,6 +267,11 @@ void Quadcopter::run() {
 	}
 }
 
+
+
+//Complementary Filter: TODO
+//ra = .98 * (ra + (rv * dt)) + .02 * accel_ra;
+//pa = .98 * (pa + (pv * dt)) + .02 * accel_pa;
 
 /*mag calcs
 double accXnorm = accel_out[0] / sqrt(accel_out[0] * accel_out[0] + accel_out[1] * accel_out[1] + accel_out[2] * accel_out[2]);
