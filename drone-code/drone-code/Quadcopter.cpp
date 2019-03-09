@@ -83,8 +83,8 @@ Quadcopter::~Quadcopter() {
 
 void Quadcopter::print() {
 	
-	cout << "Angle X: " << ra << endl;
-	cout << "Angle Y: " << pa << endl;
+	cout << "Angle X: " << smooth_ra << endl;
+	cout << "Angle Y: " << smooth_pa << endl;
 	//cout << "Angle Z: " << ya << endl << endl;
 
 	cout << "Rate X: " << rv << endl;
@@ -144,24 +144,36 @@ void Quadcopter::run() {
 		yv = (float)gyro_out[2] * 0.07; //rgz
 
 		//Accel Calcs
-		ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
-		pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
+		accel_ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
+		accel_pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
 
-		ra_mean[count] = ra;
-		pa_mean[count] = pa;
-
-		//Convert angles to +/- 180
+		//Complementary Filter: TODO
+		ra = .98 * (ra + rv * dt) + .02 * accel_ra;
+		pa = .98 * (pa + pv * dt) + .02 * accel_pa;
+		
+		//Wrap around
+		if(ra > 360)
+			ra -= 360;
+		if(pa > 360)
+			pa -= 360;
+		
+		//Adjust to +/- 180
 		if (ra > 180)		
 			ra -= 360;
-		if (pa >= 270)
+		if(pa >= 270)
 			pa -= 450;
 		else
 			pa -= 90;
+			
+		ra_mean[count] = ra;
+		pa_mean[count] = pa;
 
 		double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
 		double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
 		double yv_target = map_value(rc_adj[RUD], 1000, 2000, -180, 180);
 		double lift = constrain(rc_adj[ELE], 1100, 1900);
+		
+		
 
 		//----------PID's----------\\
 			
@@ -223,17 +235,14 @@ ya += declination * (180 / M_PI);*/
 /*Possibly add in Median filter code here
 double ra_sum = 0;
 double pa_sum = 0;
-for (int i = 0; i < count; i++) {
+for (int i = 0; i < 16; i++) {
 	ra_sum += ra_mean[i];
-	pa_sum += pa_mean[i];
+	pa_sum += pa_mean[i];				
 }
 
-smooth_ra = ra_sum / count;
-smooth_pa = pa_sum / count;*/
-
-//Complementary Filter
-//ra = .98 * (ra + rv * dt) + .02 * accel_ra;
-//pa = .98 * (pa + pv * dt) + .02 * accel_pa;
+smooth_ra = ra_sum / 16;
+smooth_pa = pa_sum / 16;
+*/
 
 
 

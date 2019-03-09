@@ -29,12 +29,6 @@ private:
 	double ra;
 	double pa;
 
-	double smooth_ra;
-	double smooth_pa;
-
-	double* ra_mean;
-	double* pa_mean;
-
 	double accel_ra;
 	double accel_pa;
 
