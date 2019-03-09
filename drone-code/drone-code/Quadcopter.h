@@ -47,11 +47,11 @@ private:
 	double kalmanY;
 
 	//Roll, Pitch, Yaw PIDs
-	PID ra_pid{ 0.01, 0.01, 0.01 };
-	PID pa_pid{ 0.01, 0.01, 0.01 };
+	PID ra_pid{ 4, 0.5, 2 };
+	PID pa_pid{ 4, 0.5, 2 };
 
 	//Roll, Pitch, and Yaw angular velocity PID's
-	PID yv_pid{ 0.01, 0.01, 0.01};
+	PID yv_pid{ 1.0, 0.02, 0};
 
 	//Raw output arrays
 	double* accel_out;

@@ -89,9 +89,9 @@ void Quadcopter::print() {
 	cout << "ELE: " << rc_adj[ELE] << endl;
 	cout << "THR: " << rc_adj[THR] << endl << endl;
 	
-	cout << "FL: " << esc->getPWM(FL) << endl;
+	cout << "FL: " << esc->getPWM(FL) << "   ";
 	cout << "FR: " << esc->getPWM(FR) << endl;
-	cout << "BL: " << esc->getPWM(BL) << endl;
+	cout << "BL: " << esc->getPWM(BL) << "   ";
 	cout << "BR: " << esc->getPWM(BR) << endl << endl;
 	
 	cout << "DT: " << dt * 1000000 << endl << endl << endl << endl << endl << endl;
@@ -111,16 +111,21 @@ void Quadcopter::run() {
 		dt = (endTime - startTime) / 1000000.0;
 		startTime = micros();
 		count++;
+		
+		cout << "Before RUD: " << rc_adj[RUD] << endl;
+		cout << "Before AIL: " << rc_adj[AIL] << endl;
+		cout << "Before ELE: " << rc_adj[ELE] << endl;
+		cout << "Before THR: " << rc_adj[THR] << endl << endl;
 
 		//RC collection logic
-		if (count == 16) {
+		if (count == 1) {
 			rc_values = rc->getValues();
 
 			for (int channel = 0; channel < 5; channel++) {
 				rc_adj[channel] = rc_values[channel];
 				//rc_adj[channel] /= buffer;
 				//rc_adj[channel] *= buffer;
-				rc_adj[channel] = constrain(rc_adj[channel], 1000, 1999);
+				rc_adj[channel] = constrain(rc_adj[channel], 1000, 1800);
 			}
 
 			count = 0;
@@ -151,39 +156,56 @@ void Quadcopter::run() {
 			//Complementary Filter: TODO
 			//ra = .98 * (ra + (rv * dt)) + .02 * accel_ra;
 			//pa = .98 * (pa + (pv * dt)) + .02 * accel_pa;
-
+ 
 			//Kalman Filter
 			kalmanX = kalmanFilterX->kalmanX(accel_ra, rv, dt);
 			kalmanY = kalmanFilterY->kalmanY(accel_pa, pv, dt);
 
-			double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
-			double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
-			double yv_target = map_value(rc_adj[RUD], 1000, 2000, -180, 180);
-			double lift = constrain(rc_adj[ELE], 1100, 1900);
+			double ra_target = map_value(rc_adj[AIL], 1000, 1800, -33, 33);
+			double pa_target = map_value(rc_adj[THR], 1000, 1800, -33, 33);
+			double yv_target = map_value(rc_adj[RUD], 1000, 1800, -180, 180);
+			double lift = constrain(rc_adj[ELE], 1000, 1800);
 
 			//----------PID's----------\\
 			
-			ra_pid_out = ra_pid.compute(ra, ra_target, dt);
-			pa_pid_out = pa_pid.compute(pa, pa_target, dt);
-			yv_pid_out = yv_pid.compute(yv, yv_target, dt);
+			cout << "RA PID: " << endl;
+			ra_pid_out = ra_pid.compute(kalmanX, ra_target, dt);
+			//cout << "PA PID: " << endl;
+			//pa_pid_out = pa_pid.compute(kalmanY, pa_target, dt);
+			//cout << "YV PID: " << endl;
+			//yv_pid_out = yv_pid.compute(yv, yv_target, dt);
 
 			//------Change Speed-------\\
 		
-			int fl = lift + ra_pid_out + pa_pid_out - yv_pid_out;
-			int fr = lift - ra_pid_out + pa_pid_out + yv_pid_out;
-			int bl = lift + ra_pid_out - pa_pid_out + yv_pid_out;
-			int br = lift - ra_pid_out - pa_pid_out - yv_pid_out;
+			int fl = lift + ra_pid_out - pa_pid_out - yv_pid_out;
+			int fr = lift - ra_pid_out - pa_pid_out + yv_pid_out;
+			int bl = lift + ra_pid_out + pa_pid_out + yv_pid_out;
+			int br = lift - ra_pid_out + pa_pid_out - yv_pid_out;
+			
+			//cout << "RUD: " << rc_adj[RUD] << endl;
+			//cout << "AIL: " << rc_adj[AIL] << endl;
+			//cout << "ELE: " << rc_adj[ELE] << endl;
+			//cout << "THR: " << rc_adj[THR] << endl;
+			
+			//cout << "RA PID: " << ra_pid_out << endl;
+			//cout << "PA PID: " << pa_pid_out << endl;
+			//cout << "YV PID: " << yv_pid_out << endl;
+			
+			//cout << "Raw FL: " << fl << endl;
+			//cout << "Raw FR: " << fr << endl;
+			//cout << "Raw BL: " << bl << endl;
+			//cout << "Raw BR: " << br << endl << endl;
 		
 			fl = constrain(fl, 1000, 1999);
 			fr = constrain(fr, 1000, 1999);
 			bl = constrain(bl, 1000, 1999);
 			br = constrain(br, 1000, 1999);
 
-			//TODO: Change back to specialize
 			esc->setPWM(FL, fl);
 			esc->setPWM(FR, fr);
 			esc->setPWM(BL, bl);
 			esc->setPWM(BR, br);
+
 		}
 		else{
 			esc->setPWM(FL, 1000);
