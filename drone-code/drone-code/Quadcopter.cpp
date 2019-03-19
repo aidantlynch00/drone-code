@@ -41,6 +41,11 @@ Quadcopter::Quadcopter() {
 	rv = 0;
 	pv = 0;
 	
+	ra_mean = new double[16];
+	pa_mean = new double[16];
+
+	smooth_ra = 0;
+	smooth_pa = 0;
 
 	kalmanFilterX = new KalmanFilter();
 	kalmanFilterY = new KalmanFilter();
@@ -113,10 +118,8 @@ void Quadcopter::run() {
 		dt = (endTime - startTime) / 1000000.0;
 		startTime = micros();
 		count++;
-			
-		//----Collect RC Target----\\
-	
-		if(count == 16){
+
+		if (count == 16) {
 			rc_values = rc->getValues();
 
 			for (int channel = 0; channel < 4; channel++) {
@@ -126,9 +129,20 @@ void Quadcopter::run() {
 				rc_adj[channel] *= buffer;
 				rc_adj[channel] = constrain(rc_adj[channel], 1000, 2000);
 			}
-			
+
 			count = 0;
 			print();
+
+			//Possibly add in Median filter code here
+			double ra_sum = 0;
+			double pa_sum = 0;
+			for (int i = 0; i < count; i++) {
+				ra_sum += ra_mean[i];
+				pa_sum += pa_mean[i];
+			}
+
+			smooth_ra = ra_sum / count;
+			smooth_pa = pa_sum / count;
 		}
 
 		//Get values from accelerometer, gyroscope, and magnetometer
@@ -145,6 +159,8 @@ void Quadcopter::run() {
 		ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
 		pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
 
+		ra_mean[count] = ra;
+		pa_mean[count] = pa;
 		//Complementary Filter
 		//ra = .98 * (ra + rv * dt) + .02 * accel_ra;
 		//pa = .98 * (pa + pv * dt) + .02 * accel_pa;
@@ -161,6 +177,8 @@ void Quadcopter::run() {
 			pa -= 90;
 		//delete accel_out;
 		//delete gyro_out;
+
+
 
 		double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
 		double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);

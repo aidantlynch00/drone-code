@@ -3,16 +3,16 @@
 Coding the basics to control motors through GPIO pins
 ✔ Create a class that uses PWM output to control an ESC (only need one pin) @done(18-10-12 12:59)
 Quadcopter class:
-    ✔ Use magnetometer with tilt compensation to calculate yaw @done(19-01-24 13:40)
-    ☐ Calibrate magnetometer (hard v. soft iron interference)
+    ✘ Use magnetometer with tilt compensation to calculate yaw @cancelled(19-03-18 13:15)
+    ✘ Calibrate magnetometer (hard v. soft iron interference) @cancelled(19-03-18 13:15)
     ✔ Clean up variable creation, pushing all inits outside of the fly loop @done(19-01-16 13:32)
-    ☐ Combine magnotometer readings with rate_gyro_z in a kalman filter to eliminate noise
-    ✔ Fix Kalman filter (maybe recode) @done(19-01-24 13:39)
-    ☐ Tune Kalman Filter
+    ✘ Combine magnotometer readings with rate_gyro_z in a kalman filter to eliminate noise @cancelled(19-03-18 13:15)
+    ✘ Fix Kalman filter (maybe recode) @cancelled(19-03-18 13:15)
+    ☐ Filter options: Kalman, Complimentary, Median
 RC reading:
-    ☐ Research best way to read values (Serial, PPM, PWM)
-    ☐ Code a system to read values from the radio receiver
-    ☐ Translate those readings into usable values for the Quadcopter class
+    ✔ Research best way to read values (Serial, PPM, PWM) @done(19-03-18 13:15)
+    ✔ Code a system to read values from the radio receiver @done(19-03-18 13:15)
+    ✔ Translate those readings into usable values for the Quadcopter class @done(19-03-18 13:15)
 
     
 
