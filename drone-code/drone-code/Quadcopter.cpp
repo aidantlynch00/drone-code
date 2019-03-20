@@ -119,11 +119,11 @@ void Quadcopter::run() {
 		startTime = micros();
 		count++;
 
+		//RC collection logic
 		if (count == 16) {
 			rc_values = rc->getValues();
 
 			for (int channel = 0; channel < 4; channel++) {
-				//rc_adj[channel] = map_value(rc_values[channel], low, high, 1100, 1900);
 				rc_adj[channel] = rc_values[channel];
 				rc_adj[channel] /= buffer;
 				rc_adj[channel] *= buffer;
@@ -132,23 +132,11 @@ void Quadcopter::run() {
 
 			count = 0;
 			print();
-
-			//Possibly add in Median filter code here
-			double ra_sum = 0;
-			double pa_sum = 0;
-			for (int i = 0; i < count; i++) {
-				ra_sum += ra_mean[i];
-				pa_sum += pa_mean[i];
-			}
-
-			smooth_ra = ra_sum / count;
-			smooth_pa = pa_sum / count;
 		}
 
 		//Get values from accelerometer, gyroscope, and magnetometer
 		accel_out = imu->readAccel();
 		gyro_out = imu->readGyro();
-		//mag_out = imu->readMag();
 
 		//Gyro Calcs
 		rv = (float)gyro_out[0] * 0.07; //rgx
@@ -161,31 +149,19 @@ void Quadcopter::run() {
 
 		ra_mean[count] = ra;
 		pa_mean[count] = pa;
-		//Complementary Filter
-		//ra = .98 * (ra + rv * dt) + .02 * accel_ra;
-		//pa = .98 * (pa + pv * dt) + .02 * accel_pa;
 
 		//Convert angles to +/- 180
-		//ra -= 180;
-		//if (pa > 90) pa -= 270;
-		//else         pa += 90;
 		if (ra > 180)		
 			ra -= 360;
-		if(pa >= 270)
+		if (pa >= 270)
 			pa -= 450;
 		else
 			pa -= 90;
-		//delete accel_out;
-		//delete gyro_out;
-
-
 
 		double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
 		double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
 		double yv_target = map_value(rc_adj[RUD], 1000, 2000, -180, 180);
 		double lift = constrain(rc_adj[ELE], 1100, 1900);
-		
-		
 
 		//----------PID's----------\\
 			
@@ -200,7 +176,6 @@ void Quadcopter::run() {
 		int bl = lift + ra_pid_out - pa_pid_out + yv_pid_out;
 		int br = lift - ra_pid_out - pa_pid_out - yv_pid_out;
 		
-		//cout << "FL:::" << fl << endl;
 		//fl = constrain(fl, 1000, 2000);
 		//fr = constrain(fr, 1000, 2000);
 		//bl = constrain(bl, 1000, 2000);
@@ -244,6 +219,21 @@ ya += declination * (180 / M_PI);*/
 //rv_pid_out = rv_pid.compute(rv, rv_target, dt);
 //pv_pid_out = pv_pid.compute(pv, pv_target, dt);
 //yv_pid_out = yv_pid.compute(yv, yv_target, dt);
+
+/*Possibly add in Median filter code here
+double ra_sum = 0;
+double pa_sum = 0;
+for (int i = 0; i < count; i++) {
+	ra_sum += ra_mean[i];
+	pa_sum += pa_mean[i];
+}
+
+smooth_ra = ra_sum / count;
+smooth_pa = pa_sum / count;*/
+
+//Complementary Filter
+//ra = .98 * (ra + rv * dt) + .02 * accel_ra;
+//pa = .98 * (pa + pv * dt) + .02 * accel_pa;
 
 
 
