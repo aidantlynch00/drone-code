@@ -36,16 +36,14 @@ Quadcopter::Quadcopter() {
 
 	ra = 0;
 	pa = 0;
+
+	accel_ra = 0;
+	accel_pa = 0;
+
 	yv = 0;
 
 	rv = 0;
 	pv = 0;
-	
-	ra_mean = new double[16];
-	pa_mean = new double[16];
-
-	smooth_ra = 0;
-	smooth_pa = 0;
 
 	kalmanFilterX = new KalmanFilter();
 	kalmanFilterY = new KalmanFilter();
@@ -164,16 +162,11 @@ void Quadcopter::run() {
 			pa -= 450;
 		else
 			pa -= 90;
-			
-		ra_mean[count] = ra;
-		pa_mean[count] = pa;
 
 		double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
 		double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
 		double yv_target = map_value(rc_adj[RUD], 1000, 2000, -180, 180);
 		double lift = constrain(rc_adj[ELE], 1100, 1900);
-		
-		
 
 		//----------PID's----------\\
 			
