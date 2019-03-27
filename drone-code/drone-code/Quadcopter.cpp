@@ -145,32 +145,15 @@ void Quadcopter::run() {
 		accel_ra = (float)(atan2(accel_out[1], accel_out[2]) + M_PI)*57.29578;
 		accel_pa = (float)(atan2(accel_out[2], accel_out[0]) + M_PI)*57.29578;
 		
-		if(firstLoop){
-			ra = accel_ra; 
-			pa = accel_pa;
-			firstLoop = false;
-		}
-		
-		cout << pa << endl;
-		
+		//Accel range
+		accel_ra = map_value(accel_ra, 0, 360, -180, 180);
+		accel_pa = map_value(accel_pa, 0, 360, -180, 180);
+
 		//Complementary Filter: TODO
 		ra = .98 * (ra + (rv * dt)) + .02 * accel_ra;
 		pa = .98 * (pa + (pv * dt)) + .02 * accel_pa;
-		
-		//Wrap around ALL OF THIS CODE IS FLAWED
-		if(ra > 360)
-			ra -= 360;
-		if(pa > 360)
-			pa -= 360;
-		
-		//Adjust to +/- 180
-		if (ra > 180)		
-			ra -= 360;
-		if(pa >= 270)
-			pa -= 450;
-		else;
-			//pa -= 90;
 
+	
 		double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
 		double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
 		double yv_target = map_value(rc_adj[RUD], 1000, 2000, -180, 180);
@@ -262,7 +245,19 @@ smooth_pa = pa_sum / 16;
 
 
 
-
+/*Wrap around ALL OF THIS CODE IS FLAWED
+		if(ra > 360)
+			ra -= 360;
+		if(pa > 360)
+			pa -= 360;
+		
+		//Adjust to +/- 180
+		if (ra > 180)		
+			ra -= 360;
+		if(pa >= 270)
+			pa -= 450;
+		else;
+			//pa -= 90;*/
 
 
 
