@@ -1,18 +1,7 @@
 #include "KalmanFilter.h"
 
 KalmanFilter::KalmanFilter() {
-	q_angle = .001;
-	q_bias = .003;
-	r_measure = .03;
-
-	angle = 0;
-	bias = 0;
-	rate = 0;
-
-	errorMatrix[0][0] = 0;
-	errorMatrix[0][1] = 0;
-	errorMatrix[1][0] = 0;
-	errorMatrix[1][1] = 0;
+	
 }
 
 double KalmanFilter::compute(double measuredAngle, double measuredRate, double dt) {
@@ -49,4 +38,57 @@ double KalmanFilter::compute(double measuredAngle, double measuredRate, double d
 	errorMatrix[1][1] -= kalmanGain[1] * errorMatrix_01;
 
 	return angle;
+
+}
+
+double KalmanFilter::kalmanX(double accAngle, double gyroRate, double dt) {
+	double y, S;
+	double K_0, K_1;
+
+	KFangleX += dt * (gyroRate - x_bias);
+
+	XP_00 += -dt * (XP_10 + XP_01) + Q_angle * dt;
+	XP_01 += -dt * XP_11;
+	XP_10 += -dt * XP_11;
+	XP_11 += +Q_gyro * dt;
+
+	y = accAngle - KFangleX;
+	S = XP_00 + R_angle;
+	K_0 = XP_00 / S;
+	K_1 = XP_10 / S;
+
+	KFangleX += K_0 * y;
+	x_bias += K_1 * y;
+	XP_00 -= K_0 * XP_00;
+	XP_01 -= K_0 * XP_01;
+	XP_10 -= K_1 * XP_00;
+	XP_11 -= K_1 * XP_01;
+
+	return KFangleX;
+}
+
+double KalmanFilter::kalmanY(double accAngle, double gyroRate, double dt) {
+	float  y, S;
+	float K_0, K_1;
+
+	KFangleY += dt * (gyroRate - y_bias);
+
+	YP_00 += -dt * (YP_10 + YP_01) + Q_angle * dt;
+	YP_01 += -dt * YP_11;
+	YP_10 += -dt * YP_11;
+	YP_11 += +Q_gyro * dt;
+
+	y = accAngle - KFangleY;
+	S = YP_00 + R_angle;
+	K_0 = YP_00 / S;
+	K_1 = YP_10 / S;
+
+	KFangleY += K_0 * y;
+	y_bias += K_1 * y;
+	YP_00 -= K_0 * YP_00;
+	YP_01 -= K_0 * YP_01;
+	YP_10 -= K_1 * YP_00;
+	YP_11 -= K_1 * YP_01;
+
+	return KFangleY;
 }
