@@ -5,11 +5,9 @@
 GPIO::GPIO(int _bcm_pin, int _mode) {
 	bcm_pin = _bcm_pin;
 	mode = _mode;
-	pud = _pud;
 	value = LOW; //off
 
 	pinMode(bcm_pin, mode);
-	pullUpDnControl(bcm_pin, PUD_OFF);
 }
 
 GPIO::~GPIO() {
