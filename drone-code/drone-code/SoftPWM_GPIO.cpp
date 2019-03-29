@@ -3,7 +3,7 @@
 #include "SoftPWM_GPIO.h"
 
 SoftPWM_GPIO::SoftPWM_GPIO(int bcm_pin): GPIO(bcm_pin, OUTPUT){
-	softPwmCreate(bcm_pin, 0, 100);
+	softPwmCreate(bcm_pin, 0, 2000);
 	value = 0;
 }
 

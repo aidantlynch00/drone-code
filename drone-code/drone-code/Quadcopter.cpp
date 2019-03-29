@@ -14,6 +14,11 @@
 #define ELE 2
 #define THR 3
 
+#define BR 6
+#define FR 13
+#define FL 19
+#define BL 26
+
 using namespace std;
 
 double map_value(double value, double low1, double high1, double low2, double high2){
