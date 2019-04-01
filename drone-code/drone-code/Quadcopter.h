@@ -16,7 +16,7 @@ class Quadcopter {
 private:
 	const double declination = 43.92 / 1000.0;
 
-	map<string, ESC*> motors;
+	ESC* esc;
 	BerryIMU* imu;
 	RC* rc = new RC();
 

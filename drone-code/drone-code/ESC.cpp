@@ -1,5 +1,3 @@
-#include <wiringPi.h>
-#include <softPwm.h>
 #include "ESC.h"
 
 ESC::ESC() {
@@ -13,7 +11,11 @@ ESC::~ESC() {
 	delete[] motors;
 }
 
-void ESC::setPWM(int motor, int pwm) {
+void ESC::setPWM(int motor, uint32_t pwm) {
+	motors[motor]->setValue(pwm);
+}
 
+uint32_t ESC::getPWM(int motor) {
+	return motors[motor]->getValue();
 }
 

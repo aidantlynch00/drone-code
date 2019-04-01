@@ -54,15 +54,7 @@ Quadcopter::Quadcopter() {
 	kalmanFilterY = new KalmanFilter();
 	kalmanFilterZ = new KalmanFilter();
 
-	motors["FL"] = new ESC(6);
-	motors["FR"] = new ESC(13);
-	motors["BL"] = new ESC(19);
-	motors["BR"] = new ESC(26);
-	
-	motors["FL"]->setPWM(1000);
-	motors["FR"]->setPWM(1000);
-	motors["BL"]->setPWM(1000);
-	motors["BR"]->setPWM(1000);
+	esc = new ESC();
 
 	startTime = 0;
 	endTime = 0;
@@ -75,11 +67,7 @@ Quadcopter::~Quadcopter() {
 	delete kalmanFilterY;
 	delete kalmanFilterZ;
 
-	delete motors["FL"];
-	delete motors["FR"];
-	delete motors["BL"];
-	delete motors["BR"];
-	motors.clear();
+	delete esc;
 }
 
 
@@ -98,10 +86,10 @@ void Quadcopter::print() {
 	cout << "ELE: " << rc_adj[ELE] << endl;
 	cout << "THR: " << rc_adj[THR] << endl << endl;
 	
-	cout << "FL: " << motors["FL"]->getPWM() << endl;
-	cout << "FR: " << motors["FR"]->getPWM() << endl;
-	cout << "BL: " << motors["BL"]->getPWM() << endl;
-	cout << "BR: " << motors["BR"]->getPWM() << endl << endl;
+	cout << "FL: " << esc->getPWM(FL) << endl;
+	cout << "FR: " << esc->getPWM(FR) << endl;
+	cout << "BL: " << esc->getPWM(BL) << endl;
+	cout << "BR: " << esc->getPWM(BR) << endl << endl;
 	
 	cout << "DT: " << dt * 1000000 << endl << endl << endl << endl << endl << endl;
 }
@@ -199,10 +187,10 @@ void Quadcopter::run() {
 		//bl = constrain(bl, 1000, 2000);
 		//br = constrain(br, 1000, 2000);
 
-		motors["FL"]->setPWM(fl);
-		motors["FR"]->setPWM(fr);
-		motors["BL"]->setPWM(bl);
-		motors["BR"]->setPWM(br);
+		esc->setPWM(FL, fl);
+		esc->setPWM(FR, fr);
+		esc->setPWM(BL, bl);
+		esc->setPWM(BR, br);
 
 		//--Loop time corrections--\\
 		

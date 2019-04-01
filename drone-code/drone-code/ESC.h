@@ -8,5 +8,6 @@ class ESC {
 public:
 	ESC();
 	~ESC();
-	void setPWM(int motor, int pwm);
+	void setPWM(int motor, uint32_t pwm);
+	uint32_t getPWM(int motor);
 };
