@@ -41,6 +41,8 @@ private:
 	KalmanFilter* kalmanFilterX;
 	KalmanFilter* kalmanFilterY;
 	KalmanFilter* kalmanFilterZ;
+	double kalmanX;
+	double kalmanY;
 
 	//Roll, Pitch, Yaw PIDs
 	PID ra_pid{ .01, .01, .01 };

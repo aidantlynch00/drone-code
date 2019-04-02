@@ -81,8 +81,8 @@ Quadcopter::~Quadcopter() {
 
 void Quadcopter::print() {
 	
-	cout << "Angle X: " << ra << endl;
-	cout << "Angle Y: " << pa << endl;
+	cout << "Angle X: " << kalmanX << endl;
+	cout << "Angle Y: " << kalmanY << endl;
 
 	cout << "Rate X: " << rv << endl;
 	cout << "Rate Y: " << pv << endl;
@@ -153,7 +153,10 @@ void Quadcopter::run() {
 		ra = .98 * (ra + (rv * dt)) + .02 * accel_ra;
 		pa = .98 * (pa + (pv * dt)) + .02 * accel_pa;
 
-	
+		//Kalman Filter
+		kalmanX = kalmanFilterX->kalmanX(accel_ra, rv, dt);
+		kalmanY = kalmanFilterY->kalmanY(accel_pa, pv, dt);
+
 		double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
 		double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
 		double yv_target = map_value(rc_adj[RUD], 1000, 2000, -180, 180);
