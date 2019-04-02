@@ -73,6 +73,7 @@
     <ClCompile Include="PID.cpp" />
     <ClCompile Include="Quadcopter.cpp" />
     <ClCompile Include="SoftPWM_GPIO.cpp" />
+    <ClCompile Include="MotorTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BerryIMU.h" />
