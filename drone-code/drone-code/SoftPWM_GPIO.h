@@ -6,6 +6,7 @@
 class SoftPWM_GPIO : public GPIO {
 	public:
 		SoftPWM_GPIO(int bcm_pin);
+		SoftPWM_GPIO();
 		~SoftPWM_GPIO();
 
 		void setValue(uint32_t _value);

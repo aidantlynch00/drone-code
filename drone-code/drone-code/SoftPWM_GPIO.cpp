@@ -1,10 +1,17 @@
 #include <wiringPi.h>
 #include <softPwm.h>
 #include "SoftPWM_GPIO.h"
+#include <iostream>
+
+using namespace std;
 
 SoftPWM_GPIO::SoftPWM_GPIO(int bcm_pin): GPIO(bcm_pin, OUTPUT){
 	softPwmCreate(bcm_pin, 0, 2000);
 	value = 0;
+}
+
+SoftPWM_GPIO::SoftPWM_GPIO() : GPIO(-1, OUTPUT) {
+	cerr << "Default SPWM constructor called" << endl;
 }
 
 SoftPWM_GPIO::~SoftPWM_GPIO(){

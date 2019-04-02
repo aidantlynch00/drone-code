@@ -35,7 +35,7 @@ void calc_input(int channel, int pin)
     else 
     {
         uint32_t rc_compare = (uint32_t)(micros() - rc_start[channel]);
-        rc_shared[channel] = &rc_compare;
+        rc_shared[channel] = rc_compare;
     }
 }
 

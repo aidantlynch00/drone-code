@@ -3,7 +3,7 @@
 #include "SoftPWM_GPIO.h"
 
 class ESC {
-	SoftPWM_GPIO* motors[4];
+	SoftPWM_GPIO motors[4];
 
 public:
 	ESC();
