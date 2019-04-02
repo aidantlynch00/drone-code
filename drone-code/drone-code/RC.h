@@ -3,10 +3,6 @@
 #include <stdint.h>
 #include <string>
 
-#define PERIOD			20
-#define SAMPLING_PERIOD 1
-#define BITS			8
-
 using namespace std;
 
 class RC {
