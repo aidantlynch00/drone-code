@@ -17,7 +17,7 @@ private:
 
 public:
 	KalmanFilter();
-	double compute(double measuredAngle, double measuredRate, double dt);
+	//double compute(double measuredAngle, double measuredRate, double dt);
 	double kalmanX(double accAngle, double gyroRate, double dt);
 	double kalmanY(double accAngle, double gyroRate, double dt);
 };

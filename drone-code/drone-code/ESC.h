@@ -3,20 +3,11 @@
 #include "SoftPWM_GPIO.h"
 
 class ESC {
+	SoftPWM_GPIO* motors[4];
 
 public:
-	//Change these values based on the specs of the ESC (in us)
-	static const int MIN_PULSE_WIDTH = 1000;
-	static const int MAX_PULSE_WIDTH = 1999;
-
-private:
-	double lowRange, highRange;
-	uint32_t pwm;
-	SoftPWM_GPIO* pin;
-
-public:
-	ESC(int bcm_pin);
+	ESC();
 	~ESC();
-	void setPWM(int _pwm);
-	int getPWM();
+	void setPWM(int motor, uint32_t pwm);
+	uint32_t getPWM(int motor);
 };

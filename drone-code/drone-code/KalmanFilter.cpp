@@ -4,8 +4,8 @@ KalmanFilter::KalmanFilter() {
 	
 }
 
-double KalmanFilter::compute(double measuredAngle, double measuredRate, double dt) {
-
+/*double KalmanFilter::compute(double measuredAngle, double measuredRate, double dt) {
+	
 	//Predict the angle
 	rate = measuredRate - bias;
 	angle += rate * dt; //Integrating rate to get the angle
@@ -38,8 +38,7 @@ double KalmanFilter::compute(double measuredAngle, double measuredRate, double d
 	errorMatrix[1][1] -= kalmanGain[1] * errorMatrix_01;
 
 	return angle;
-
-}
+}*/
 
 double KalmanFilter::kalmanX(double accAngle, double gyroRate, double dt) {
 	double y, S;

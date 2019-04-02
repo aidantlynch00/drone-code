@@ -1,18 +1,13 @@
 #pragma once
 #include <wiringPi.h>
+#include <stdint.h>
 #include "GPIO.h"
 
 class SoftPWM_GPIO : public GPIO {
-
-	private:
-		int range;
-
 	public:
-		SoftPWM_GPIO(int bcm_pin, int range);
+		SoftPWM_GPIO(int bcm_pin);
 		~SoftPWM_GPIO();
 
-		int  getDuty();
-		int getRange();
-		void changeValue(int change);
-		void setValue(int _value);
+		void setValue(uint32_t _value);
+		uint32_t getValue();
 };
