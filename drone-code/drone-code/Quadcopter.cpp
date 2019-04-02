@@ -47,9 +47,6 @@ Quadcopter::Quadcopter() {
 
 	yv = 0;
 
-	rv = 0;
-	pv = 0;
-
 	kalmanFilterX = new KalmanFilter();
 	kalmanFilterY = new KalmanFilter();
 	kalmanFilterZ = new KalmanFilter();
