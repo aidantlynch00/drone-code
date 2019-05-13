@@ -46,6 +46,16 @@ private:
 	double kalmanX;
 	double kalmanY;
 	
+	double kalmanX_value;
+	double kalmanY_value;
+	
+	double* kalmanX_raw;
+	double* kalmanY_raw;
+	double* kalmanX_sorted;
+	double* kalmanY_sorted;
+	double* kalmanX_quartile;
+	double* kalmanY_quartile;
+	
 	double* ra_pid_raw;
 	double* ra_pid_sorted;
 	double* pa_pid_raw;
@@ -54,11 +64,11 @@ private:
 	double* yv_pid_sorted;
 
 	//Roll, Pitch, Yaw PIDs
-	PID ra_pid{ 4, 0.5, 2 };
-	PID pa_pid{ 4, 0.5, 2 };
+	PID ra_pid{ 7, 0, 0 };
+	PID pa_pid{ 7, 0, 0 };
 
 	//Roll, Pitch, and Yaw angular velocity PID's
-	PID yv_pid{ 1.0, 0.02, 0};
+	PID yv_pid{ 2, 0, 0 };
 
 	//Raw output arrays
 	double* accel_out;

@@ -70,7 +70,7 @@ double* insertion_sort(double* array){
 }
 
 double median(double* array){
-	return ((array[8] + array[9]) / 2);
+	return ((array[sizeof(array) / 2] + array[(sizeof(array) / 2) + 1]) / 2);
 }
 
 Quadcopter::Quadcopter() {
@@ -91,9 +91,19 @@ Quadcopter::Quadcopter() {
 	kalmanFilterY = new KalmanFilter();
 	kalmanFilterZ = new KalmanFilter();
 	
+	kalmanX_raw = new double[64];
+	kalmanY_raw = new double[64];
+	kalmanX_quartile = new double[16];
+	kalmanY_quartile = new double[16];
+	
 	ra_pid_raw = new double[16];
 	pa_pid_raw = new double[16];
 	yv_pid_raw = new double[16];
+	
+	for(int i = 0; i < 64; i++){
+		kalmanX_raw[i] = 0;
+		kalmanY_raw[i] = 0;
+	}
 	
 	for(int i = 0; i < 16; i++){
 		ra_pid_raw[i] = 0;
@@ -127,9 +137,9 @@ void Quadcopter::print() {
 	//cout << "Raw X: " << accel_ra << endl;
 	//cout << "Raw Y: " << accel_pa << endl;
 
-	//cout << "Rate X: " << rv << endl;
-	//cout << "Rate Y: " << pv << endl;
-	//cout << "Rate Z: " << yv << endl << endl;
+	cout << "Rate X: " << rv << endl;
+	cout << "Rate Y: " << pv << endl;
+	cout << "Rate Z: " << yv << endl << endl;
 	
 	cout << "RUD: " << rc_adj[RUD] << endl;
 	cout << "AIL: " << rc_adj[AIL] << endl;
@@ -150,7 +160,7 @@ void Quadcopter::run() {
 	flying = true;
 	int count = 0;
 	int preflight_count = 0;
-	int buffer = 50;
+	int buffer = 25;
 
 	//Pitch is rotating about the Y axis, Roll is rotating about the X axis, Yaw is rotating about the Z axis
 
@@ -160,20 +170,15 @@ void Quadcopter::run() {
 		startTime = micros();
 		count++;
 		
-		cout << "Before RUD: " << rc_adj[RUD] << endl;
-		cout << "Before AIL: " << rc_adj[AIL] << endl;
-		cout << "Before ELE: " << rc_adj[ELE] << endl;
-		cout << "Before THR: " << rc_adj[THR] << endl << endl;
-
 		//RC collection logic
 		if (count == 16) {
 			rc_values = rc->getValues();
 
 			for (int channel = 0; channel < 5; channel++) {
 				rc_adj[channel] = rc_values[channel];
-				//rc_adj[channel] /= buffer;
-				//rc_adj[channel] *= buffer;
-				rc_adj[channel] = constrain(rc_adj[channel], 1000, 1800);
+				rc_adj[channel] /= buffer;
+				rc_adj[channel] *= buffer;
+				rc_adj[channel] = constrain(rc_adj[channel], 1000, 2000);
 			}
 
 			count = 0;
@@ -202,20 +207,43 @@ void Quadcopter::run() {
 		//Kalman Filter
 		kalmanX = kalmanFilterX->kalmanX(accel_ra, rv, dt);
 		kalmanY = kalmanFilterY->kalmanY(accel_pa, pv, dt);
+		
+		add(kalmanX_raw, kalmanX);
+		add(kalmanY_raw, kalmanY);
+		//kalmanX_sorted = insertion_sort(kalmanX_raw);
+		//kalmanY_sorted = insertion_sort(kalmanY_raw);
+		//kalmanX_value = median(kalmanX_quartile);
+		//kalmanY_value = median(kalmanY_quartile);
+		
+		double sumX = 0;
+		double sumY = 0;
+		for(int i = 0; i < 64; i++){
+			sumX += kalmanX_raw[i];
+			sumY += kalmanY_raw[i];
+		}
+		
+		kalmanX_value = sumX / 64;
+		kalmanY_value = sumY / 64;
 
-		double ra_target = map_value(rc_adj[AIL], 1000, 1800, -33, 33);
-		double pa_target = map_value(rc_adj[THR], 1000, 1800, -33, 33);
-		double yv_target = map_value(rc_adj[RUD], 1000, 1800, -180, 180);
-		double lift = constrain(rc_adj[ELE], 1000, 1800);
+		//Complementary Filter: TODO
+		//kalmanX = .98 * (kalmanX + (rv * dt)) + .02 * accel_ra;
+		//kalmanY = .98 * (kalmanY + (pv * dt)) + .02 * accel_pa;
+
+		double ra_target = map_value(rc_adj[AIL], 1000, 2000, -33, 33);
+		double pa_target = map_value(rc_adj[THR], 1000, 2000, -33, 33);
+		double yv_target = map_value(rc_adj[RUD], 1000, 2000, -33, 33);
+		double lift = constrain(rc_adj[ELE], 1000, 1850);
 
 		//----------PID's----------\\
+		
+		///TODO: IF NOT BROKEN CHANGE TO KALMAN
 			
-		cout << "RA PID: " << endl;
-		ra_pid_out = ra_pid.compute(kalmanX, ra_target, dt);
+		//cout << "RA PID: " << endl;
+		ra_pid_out = ra_pid.compute(kalmanX_value, ra_target, dt);
 		//cout << "PA PID: " << endl;
-		//pa_pid_out = pa_pid.compute(kalmanY, pa_target, dt);
+		pa_pid_out = pa_pid.compute(kalmanY_value, pa_target, dt);
 		//cout << "YV PID: " << endl;
-		//yv_pid_out = yv_pid.compute(yv, yv_target, dt);
+		yv_pid_out = yv_pid.compute(yv, yv_target, dt);
 		
 		add(ra_pid_raw, ra_pid_out);
 		add(pa_pid_raw, pa_pid_out);
@@ -223,7 +251,7 @@ void Quadcopter::run() {
 		
 		preflight_count++;
 		
-		if(rc_adj[KILL] > 1500 || preflight_count < 16)
+		if(rc_adj[KILL] > 1500 || preflight_count < 16){
 			esc->setPWM(FL, 1000);
 			esc->setPWM(FR, 1000);
 			esc->setPWM(BL, 1000);
@@ -237,6 +265,8 @@ void Quadcopter::run() {
 			yv_pid_sorted = insertion_sort(yv_pid_raw);
 			double yv_pid_value = median(yv_pid_sorted);
 			
+			//cout << "VALUE WE'RE USING: " << ra_pid_value << endl;
+			
 			//------Change Speed-------\\
 			
 			int fl = lift + ra_pid_value - pa_pid_value - yv_pid_value;
@@ -248,11 +278,16 @@ void Quadcopter::run() {
 			fr = constrain(fr, 1000, 1999);
 			bl = constrain(bl, 1000, 1999);
 			br = constrain(br, 1000, 1999);
+			
+			fl = (int) map_value(fl, 1000, 1999, 0, 699);
+			fr = (int) map_value(fr, 1000, 1999, 0, 699);
+			bl = (int) map_value(bl, 1000, 1999, 0, 699);
+			br = (int) map_value(br, 1000, 1999, 0, 699);
 
-			esc->setPWM(FL, fl);
-			esc->setPWM(FR, fr);
-			esc->setPWM(BL, bl);
-			esc->setPWM(BR, br);
+			esc->setPWM(FL, 1300 + fl);
+			esc->setPWM(FR, 1300 + fr);
+			esc->setPWM(BL, 1300 + bl);
+			esc->setPWM(BR, 1300 + br);
 		}
 		
 		//--Loop time corrections--\\
